@@ -1,0 +1,13 @@
+<div class="shell">
+  <aside class="shell__sidebar" [class.shell__sidebar--open]="sidebarOpen()" aria-label="Navegação principal">
+    <app-sidebar (navigate)="closeSidebar()" />
+  </aside>
+  @if (sidebarOpen()) {
+    <button class="shell__backdrop" type="button" aria-label="Fechar menu" (click)="closeSidebar()"></button>
+  }
+  <div class="shell__content">
+    <app-header (menuToggle)="toggleSidebar()" />
+    <main class="shell__main" id="conteudo-principal"><router-outlet /></main>
+    <app-footer />
+  </div>
+</div>

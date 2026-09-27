@@ -1,0 +1,206 @@
+import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
+interface SidebarChild {
+  label: string;
+  route: string;
+}
+
+interface SidebarItem {
+  label: string;
+  route?: string;
+  badge?: string;
+  children?: SidebarChild[];
+}
+
+interface SidebarGroup {
+  label: string;
+  items: SidebarItem[];
+}
+
+@Component({
+  selector: 'app-sidebar',
+  imports: [
+    RouterLink,
+    RouterLinkActive
+  ],
+  templateUrl: './sidebar.html',
+  styleUrl: './sidebar.scss',
+})
+export class Sidebar {
+  readonly menu: SidebarGroup[] = [
+    {
+      label: 'INTELIGÊNCIA',
+      items: [
+        {
+          label: 'Visão Executiva',
+          route: '/'
+        },
+        {
+          label: 'AgroFly AI',
+          route: '/agrofly-ai',
+          badge: 'AI'
+        }
+      ]
+    },
+
+    {
+      label: 'GESTÃO FINANCEIRA',
+      items: [
+        {
+          label: 'Financeiro',
+          children: [
+            {
+              label: 'Visão Geral',
+              route: '/financeiro'
+            },
+            {
+              label: 'DRE Gerencial',
+              route: '/financeiro/dre'
+            },
+            {
+              label: 'Fluxo de Caixa',
+              route: '/financeiro/fluxo-caixa'
+            },
+            {
+              label: 'Custos e Despesas',
+              route: '/financeiro/custos'
+            },
+            {
+              label: 'Contas a Pagar e Receber',
+              route: '/financeiro/contas-pagar-receber'
+            },
+            {
+              label: 'Faturamento e Notas Fiscais',
+              route: '/financeiro/faturamento'
+            },
+            {
+              label: 'Tributos e Obrigações',
+              route: '/financeiro/tributos'
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      label: 'GESTÃO COMERCIAL',
+      items: [
+        {
+          label: 'Comercial',
+          children: [
+            {
+              label: 'Clientes e Contratos',
+              route: '/comercial/clientes-contratos'
+            },
+            {
+              label: 'Propostas e Oportunidades',
+              route: '/comercial/propostas'
+            },
+            {
+              label: 'Simulador Comercial',
+              route: '/comercial/simulador'
+            },
+            {
+              label: 'Tabela Comercial',
+              route: '/comercial/tabela'
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      label: 'GESTÃO OPERACIONAL',
+      items: [
+        {
+          label: 'Operações',
+          children: [
+            {
+              label: 'Visão Geral',
+              route: '/operacoes'
+            },
+            {
+              label: 'Planejamento e Agenda',
+              route: '/operacoes/planejamento'
+            },
+            {
+              label: 'Ordens de Serviço',
+              route: '/operacoes/ordens-servico'
+            },
+            {
+              label: 'Execução e Relatórios',
+              route: '/operacoes/execucao-relatorios'
+            }
+          ]
+        },
+
+        {
+          label: 'Frota',
+          children: [
+            {
+              label: 'Aeronaves',
+              route: '/frota'
+            },
+            {
+              label: 'Passaporte Digital',
+              route: '/frota/passaporte-digital'
+            },
+            {
+              label: 'Manutenção',
+              route: '/frota/manutencao'
+            },
+            {
+              label: 'Combustível e Óleo',
+              route: '/frota/combustivel'
+            },
+            {
+              label: 'Estoque e Peças',
+              route: '/frota/estoque'
+            }
+          ]
+        },
+        {
+          label: 'Pilotos e Tripulação',
+          route: '/tripulacao'
+        },
+        {
+          label: 'Mapa de Atuação',
+          route: '/mapa'
+        }
+      ]
+    },
+
+    {
+      label: 'ADMINISTRAÇÃO',
+      items: [
+        {
+          label: 'Documentos e Prazos',
+          route: '/documentos'
+        },
+        {
+          label: 'Central de Alertas',
+          route: '/alertas'
+        },
+        {
+          label: 'Usuários e Permissões',
+          route: '/administracao/usuarios'
+        },
+        {
+          label: 'Configurações Gerais',
+          route: '/administracao/configuracoes'
+        }
+      ]
+    },
+
+    {
+      label: 'PORTAIS',
+      items: [
+        {
+          label: 'Portal do Produtor',
+          route: '/portal-produtor'
+        }
+      ]
+    }
+  ];
+}

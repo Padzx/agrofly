@@ -1,0 +1,421 @@
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+/* =========================
+   PAGE HEADER
+========================= */
+
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.page-heading__content {
+  min-width: 0;
+}
+
+.page-heading h1 {
+  margin: 4px 0 5px;
+}
+
+.page-heading .muted {
+  max-width: 650px;
+  margin: 0;
+}
+
+.page-heading__actions {
+  flex-shrink: 0;
+}
+
+/* =========================
+   FILTERS
+========================= */
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.filter-field {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.filter-field label {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.filter-field select {
+  min-height: 42px;
+  padding: 0 38px 0 13px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--surface);
+  color: var(--text);
+
+  outline: none;
+}
+
+.filter-field select:focus {
+  border-color: var(--primary);
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.dashboard-section {
+  margin-bottom: 30px;
+}
+
+.section-heading,
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.section-heading {
+  margin-bottom: 14px;
+}
+
+.section-heading h2,
+.panel-heading h2 {
+  margin: 2px 0 0;
+  font-size: 1rem;
+}
+
+.section-heading__eyebrow {
+  color: var(--primary);
+
+  font-size: 0.68rem;
+  font-weight: 800;
+
+  letter-spacing: 0.09em;
+}
+
+.section-heading__meta,
+.panel-heading__legend {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+/* =========================
+   KPI CARDS
+========================= */
+
+.metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.metric__label {
+  color: var(--muted);
+
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.metric__value {
+  display: block;
+
+  margin: 10px 0 4px;
+
+  color: var(--text);
+
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-weight: 800;
+
+  line-height: 1.2;
+
+  letter-spacing: -0.025em;
+}
+
+.metric__value--secondary {
+  font-size: clamp(1.3rem, 1.8vw, 1.65rem);
+}
+
+.metric__note {
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+
+.metric__variation {
+  width: fit-content;
+
+  margin-top: 16px;
+  padding: 4px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--muted);
+
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.metric__variation--positive {
+  color: var(--primary);
+}
+
+.metric__variation--negative {
+  color: var(--danger);
+}
+
+/* =========================
+   LOWER GRID
+========================= */
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.55fr)
+    minmax(280px, 0.75fr);
+
+  gap: 15px;
+}
+
+.panel-heading {
+  margin-bottom: 24px;
+}
+
+/* =========================
+   CHART PLACEHOLDER
+========================= */
+
+.chart-placeholder {
+  position: relative;
+
+  min-height: 245px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.018)
+    );
+}
+
+.chart-placeholder::before,
+.chart-placeholder::after {
+  content: '';
+
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  height: 1px;
+
+  background: var(--border);
+
+  opacity: 0.4;
+}
+
+.chart-placeholder::before {
+  top: 33%;
+}
+
+.chart-placeholder::after {
+  top: 66%;
+}
+
+.chart-placeholder__bars {
+  height: 185px;
+
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(13px, 3vw, 30px);
+
+  padding: 25px 30px 0;
+}
+
+.chart-placeholder__bars span {
+  flex: 1;
+
+  min-width: 14px;
+  max-width: 42px;
+
+  border-radius: 5px 5px 0 0;
+
+  background: var(--primary);
+
+  opacity: 0.55;
+}
+
+.chart-placeholder p {
+  position: relative;
+
+  margin: 0;
+  padding: 13px 20px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
+}
+
+/* =========================
+   ALERTS
+========================= */
+
+.alert-counter {
+  display: grid;
+  place-items: center;
+
+  min-width: 27px;
+  height: 27px;
+
+  border: 1px solid var(--border);
+  border-radius: 50%;
+
+  color: var(--muted);
+
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.alerts {
+  display: grid;
+  gap: 10px;
+}
+
+.alert {
+  display: grid;
+
+  grid-template-columns: auto 1fr;
+
+  gap: 11px;
+
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.alert__dot {
+  width: 8px;
+  height: 8px;
+
+  margin-top: 6px;
+
+  border-radius: 50%;
+
+  background: var(--primary);
+}
+
+.alert strong {
+  display: block;
+
+  margin-bottom: 2px;
+
+  font-size: 0.78rem;
+}
+
+.alert p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 0.71rem;
+
+  line-height: 1.45;
+}
+
+.alert--warning .alert__dot {
+  background: #e4ad58;
+}
+
+.alert--danger .alert__dot {
+  background: var(--danger);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@include bp.tablet {
+  .metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include bp.mobile {
+  .page-heading {
+    flex-direction: column;
+  }
+
+  .page-heading__actions {
+    width: 100%;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .filter-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading,
+  .panel-heading {
+    align-items: flex-start;
+  }
+
+  .section-heading__meta,
+  .panel-heading__legend {
+    display: none;
+  }
+
+  .chart-placeholder__bars {
+    gap: 12px;
+    padding-inline: 18px;
+  }
+}

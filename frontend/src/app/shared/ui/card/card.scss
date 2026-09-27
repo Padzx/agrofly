@@ -1,0 +1,2 @@
+:host { display: block; min-width: 0; }
+.card { height: 100%; padding: clamp(17px, 2.2vw, 26px); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }

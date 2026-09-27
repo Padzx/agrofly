@@ -1,0 +1,176 @@
+import { Routes } from '@angular/router';
+
+import { AppShell } from './layout/app-shell/app-shell';
+import { DashboardHome } from './pages/dashboard-home/dashboard-home';
+import { ComingSoon } from './pages/coming-soon/coming-soon';
+import { DesignSystem } from './pages/design-system/design-system';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: AppShell,
+
+    children: [
+      {
+        path: '',
+        component: DashboardHome,
+        title: 'Visão Executiva | AgroFly'
+      },
+
+      /*
+       * INTELIGÊNCIA
+       */
+
+      {
+        path: 'agrofly-ai',
+        component: ComingSoon,
+        title: 'AgroFly AI | AgroFly'
+      },
+
+      /*
+       * FINANCEIRO
+       */
+
+      {
+        path: 'financeiro',
+        component: ComingSoon,
+        title: 'Financeiro | AgroFly'
+      },
+      {
+        path: 'financeiro/dre',
+        component: ComingSoon,
+        title: 'DRE Gerencial | AgroFly'
+      },
+      {
+        path: 'financeiro/fluxo-caixa',
+        component: ComingSoon,
+        title: 'Fluxo de Caixa | AgroFly'
+      },
+      {
+        path: 'financeiro/custos',
+        component: ComingSoon,
+        title: 'Custos e Despesas | AgroFly'
+      },
+
+      /*
+       * COMERCIAL
+       */
+
+      {
+        path: 'clientes-contratos',
+        component: ComingSoon,
+        title: 'Clientes e Contratos | AgroFly'
+      },
+      {
+        path: 'simulador-comercial',
+        component: ComingSoon,
+        title: 'Simulador Comercial | AgroFly'
+      },
+
+      /*
+       * OPERAÇÕES
+       */
+
+      {
+        path: 'operacoes',
+        component: ComingSoon,
+        title: 'Operações | AgroFly'
+      },
+      {
+        path: 'ordens-servico',
+        component: ComingSoon,
+        title: 'Ordens de Serviço | AgroFly'
+      },
+
+      /*
+       * FROTA
+       */
+
+      {
+        path: 'frota',
+        component: ComingSoon,
+        title: 'Frota | AgroFly'
+      },
+      {
+        path: 'frota/passaporte-digital',
+        component: ComingSoon,
+        title: 'Passaporte Digital | AgroFly'
+      },
+      {
+        path: 'frota/manutencao',
+        component: ComingSoon,
+        title: 'Manutenção | AgroFly'
+      },
+      {
+        path: 'frota/combustivel',
+        component: ComingSoon,
+        title: 'Combustível e Óleo | AgroFly'
+      },
+      {
+        path: 'frota/estoque',
+        component: ComingSoon,
+        title: 'Estoque e Peças | AgroFly'
+      },
+
+      /*
+       * TRIPULAÇÃO
+       */
+
+      {
+        path: 'tripulacao',
+        component: ComingSoon,
+        title: 'Pilotos e Tripulação | AgroFly'
+      },
+
+      /*
+       * MAPA
+       */
+
+      {
+        path: 'mapa',
+        component: ComingSoon,
+        title: 'Mapa de Atuação | AgroFly'
+      },
+
+      /*
+       * ADMINISTRAÇÃO
+       */
+
+      {
+        path: 'documentos',
+        component: ComingSoon,
+        title: 'Documentos e Prazos | AgroFly'
+      },
+      {
+        path: 'alertas',
+        component: ComingSoon,
+        title: 'Central de Alertas | AgroFly'
+      },
+
+      /*
+       * PORTAL
+       */
+
+      {
+        path: 'portal-produtor',
+        component: ComingSoon,
+        title: 'Portal do Produtor | AgroFly'
+      },
+
+      /*
+       * DESIGN SYSTEM
+       */
+
+      {
+        path: 'design-system',
+        component: DesignSystem,
+        title: 'Design System | AgroFly'
+      }
+    ]
+  },
+
+  {
+    path: '**',
+    redirectTo: ''
+  }
+];
