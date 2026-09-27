@@ -1,0 +1,117 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <div class="sidebar__brand-mark">
+      AF
+    </div>
+
+    <div class="sidebar__brand-copy">
+      <strong>AgroFly</strong>
+      <span>Management</span>
+    </div>
+  </div>
+
+  <nav
+    class="sidebar__navigation"
+    aria-label="Navegação principal"
+  >
+    @for (group of menu; track group.label) {
+
+      <section class="sidebar-group">
+
+        <span class="sidebar-group__title">
+          {{ group.label }}
+        </span>
+
+        <div class="sidebar-group__items">
+
+          @for (item of group.items; track item.label) {
+
+            @if (item.children) {
+
+              <details class="sidebar-dropdown">
+
+                <summary class="sidebar-item sidebar-item--summary">
+
+                  <span class="sidebar-item__indicator"></span>
+
+                  <span class="sidebar-item__label">
+                    {{ item.label }}
+                  </span>
+
+                  <span class="sidebar-item__chevron">
+                    ›
+                  </span>
+
+                </summary>
+
+                <div class="sidebar-submenu">
+
+                  @for (
+                    child of item.children;
+                    track child.route
+                  ) {
+
+                    <a
+                      class="sidebar-submenu__item"
+                      [routerLink]="child.route"
+                      routerLinkActive="sidebar-submenu__item--active"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                    >
+                      {{ child.label }}
+                    </a>
+
+                  }
+
+                </div>
+
+              </details>
+
+            } @else {
+
+              <a
+                class="sidebar-item"
+                [routerLink]="item.route"
+                routerLinkActive="sidebar-item--active"
+                [routerLinkActiveOptions]="{
+                  exact: item.route === '/'
+                }"
+              >
+
+                <span class="sidebar-item__indicator"></span>
+
+                <span class="sidebar-item__label">
+                  {{ item.label }}
+                </span>
+
+                @if (item.badge) {
+                  <span class="sidebar-item__badge">
+                    {{ item.badge }}
+                  </span>
+                }
+
+              </a>
+
+            }
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+  </nav>
+
+  <div class="sidebar__footer">
+
+    <div class="sidebar__environment">
+      <span class="sidebar__environment-dot"></span>
+
+      <div>
+        <strong>AgroFly Dash</strong>
+        <span>Ambiente operacional</span>
+      </div>
+    </div>
+
+  </div>
+</aside>

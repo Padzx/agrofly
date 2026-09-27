@@ -1,0 +1,4 @@
+@use '../../../styles/breakpoints' as bp;
+:host { display: block; }
+.footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 9px; padding: 20px clamp(20px, 3vw, 42px); border-top: 1px solid var(--border); color: #7e9aa7; font-size: .75rem; }
+@include bp.mobile { .footer { padding: 20px 16px; } }

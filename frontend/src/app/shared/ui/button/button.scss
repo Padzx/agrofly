@@ -1,0 +1,13 @@
+:host { display: inline-flex; max-width: 100%; }
+.ui-button { display: inline-flex; gap: 9px; align-items: center; justify-content: center; min-height: 44px; border: 1px solid transparent; border-radius: var(--radius-md); padding: 0 19px; font-weight: 800; font-size: .85rem; transition: filter .15s ease, background .15s ease; }
+.ui-button:hover:not(:disabled) { filter: brightness(1.09); }
+.ui-button:disabled { opacity: .48; cursor: not-allowed; }
+.ui-button--primary { background: var(--primary); color: #06231e; }
+.ui-button--secondary { background: #183b42; color: var(--primary); border-color: #367967; }
+.ui-button--ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.ui-button--danger { background: #552e39; color: #ffd3d5; border-color: var(--danger); }
+.ui-button--sm { padding-inline: 14px; font-size: .78rem; }
+.ui-button--lg { padding-inline: 26px; min-height: 50px; }
+.ui-button__spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin .65s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ui-button { transition: none; } .ui-button__spinner { animation: none; } }

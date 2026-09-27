@@ -1,0 +1,4 @@
+:host { display: block; }
+.placeholder-page { max-width: 760px; padding: 38px; border: 1px dashed #3a5b60; background: var(--surface); border-radius: var(--radius-lg); }
+.placeholder-page a { display: inline-flex; margin-top: 24px; color: var(--primary); font-weight: 800; min-height: 44px; align-items: center; }
+@media (max-width: 767px) { .placeholder-page { padding: 23px; } }

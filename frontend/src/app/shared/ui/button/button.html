@@ -1,0 +1,6 @@
+<button [type]="type" [disabled]="disabled || loading" [attr.aria-busy]="loading"
+        [class]="'ui-button ui-button--' + variant + ' ui-button--' + size"
+        (click)="pressed.emit($event)">
+  @if (loading) { <span class="ui-button__spinner" aria-hidden="true"></span> }
+  <ng-content />
+</button>

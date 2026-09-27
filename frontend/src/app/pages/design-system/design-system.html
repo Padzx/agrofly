@@ -1,0 +1,10 @@
+<section class="heading"><p class="eyebrow">BIBLIOTECA VISUAL</p><h1>Agrofly Design System</h1><p class="muted">Referência dos elementos padronizados para todas as páginas do dashboard.</p></section>
+<ui-card><h2>Cores e tokens</h2><div class="swatches">
+  @for (color of colors; track color.token) {
+    <div class="swatch"><span class="swatch__sample" [style.background]="color.color"></span><strong>{{ color.name }}</strong><small class="muted">{{ color.token }} · {{ color.color }}</small></div>
+  }
+</div></ui-card>
+<ui-card><h2>Botões reutilizáveis</h2><p class="muted">Padrões compartilhados de tamanho, contraste e estado.</p>
+<div class="buttons"><ui-button variant="primary">Salvar alterações</ui-button><ui-button variant="secondary">Exportar</ui-button><ui-button variant="ghost">Cancelar</ui-button><ui-button variant="danger">Excluir</ui-button><ui-button [disabled]="true">Desabilitado</ui-button><ui-button [loading]="true">Carregando</ui-button></div>
+</ui-card>
+<ui-card><h2>Regras de responsividade</h2><p>Mobile: uma coluna e sidebar sobreposta. Tablet: duas colunas. Desktop: até quatro indicadores por linha.</p><p class="muted">Teste redimensionando a janela do navegador e abrindo o menu no celular.</p></ui-card>

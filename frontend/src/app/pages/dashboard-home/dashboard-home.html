@@ -1,0 +1,178 @@
+<section class="page-heading">
+  <div class="page-heading__content">
+    <p class="eyebrow">VISÃO EXECUTIVA</p>
+
+    <h1>Dashboard AgroFly</h1>
+
+    <p class="muted">
+      Panorama financeiro e operacional da operação.
+    </p>
+  </div>
+
+  <div class="page-heading__actions">
+    <ui-button variant="ghost" size="sm">
+      Atualizar dados
+    </ui-button>
+  </div>
+</section>
+
+<section class="filters" aria-label="Filtros do dashboard">
+  <div class="filter-field">
+    <label for="periodo">Período</label>
+
+    <select id="periodo">
+      <option>Últimos 30 dias</option>
+      <option>Últimos 90 dias</option>
+      <option>Ano atual</option>
+    </select>
+  </div>
+
+  <div class="filter-field">
+    <label for="safra">Safra</label>
+
+    <select id="safra">
+      <option>Todas</option>
+    </select>
+  </div>
+
+  <div class="filter-field">
+    <label for="contrato">Contrato</label>
+
+    <select id="contrato">
+      <option>Todos os contratos</option>
+    </select>
+  </div>
+</section>
+
+<section class="dashboard-section">
+  <div class="section-heading">
+    <div>
+      <span class="section-heading__eyebrow">FINANCEIRO</span>
+      <h2>Desempenho financeiro</h2>
+    </div>
+
+    <span class="section-heading__meta">
+      Período selecionado
+    </span>
+  </div>
+
+  <div class="metrics">
+    @for (indicator of financialIndicators; track indicator.label) {
+      <ui-card>
+        <div class="metric">
+          <span class="metric__label">
+            {{ indicator.label }}
+          </span>
+
+          <strong class="metric__value">
+            {{ indicator.value }}
+          </strong>
+
+          <span class="metric__note">
+            {{ indicator.note }}
+          </span>
+
+          @if (indicator.variation) {
+            <span
+              class="metric__variation"
+              [class.metric__variation--positive]="indicator.status === 'positive'"
+              [class.metric__variation--negative]="indicator.status === 'negative'"
+            >
+              {{ indicator.variation }}
+            </span>
+          }
+        </div>
+      </ui-card>
+    }
+  </div>
+</section>
+
+<section class="dashboard-section">
+  <div class="section-heading">
+    <div>
+      <span class="section-heading__eyebrow">OPERAÇÃO</span>
+      <h2>Desempenho operacional</h2>
+    </div>
+  </div>
+
+  <div class="metrics metrics--secondary">
+    @for (indicator of operationalIndicators; track indicator.label) {
+      <ui-card>
+        <div class="metric">
+          <span class="metric__label">
+            {{ indicator.label }}
+          </span>
+
+          <strong class="metric__value metric__value--secondary">
+            {{ indicator.value }}
+          </strong>
+
+          <span class="metric__note">
+            {{ indicator.note }}
+          </span>
+        </div>
+      </ui-card>
+    }
+  </div>
+</section>
+
+<section class="dashboard-grid">
+  <ui-card>
+    <div class="panel-heading">
+      <div>
+        <span class="section-heading__eyebrow">EVOLUÇÃO</span>
+        <h2>Evolução financeira</h2>
+      </div>
+
+      <span class="panel-heading__legend">
+        Receita x custos
+      </span>
+    </div>
+
+    <div
+      class="chart-placeholder"
+      aria-label="Gráfico de evolução financeira aguardando integração"
+    >
+      <div class="chart-placeholder__bars" aria-hidden="true">
+        <span style="height: 38%"></span>
+        <span style="height: 54%"></span>
+        <span style="height: 47%"></span>
+        <span style="height: 68%"></span>
+        <span style="height: 73%"></span>
+        <span style="height: 86%"></span>
+      </div>
+
+      <p>Os dados do gráfico serão carregados pela API.</p>
+    </div>
+  </ui-card>
+
+  <ui-card>
+    <div class="panel-heading">
+      <div>
+        <span class="section-heading__eyebrow">ATENÇÃO</span>
+        <h2>Alertas prioritários</h2>
+      </div>
+
+      <span class="alert-counter">
+        {{ alerts.length }}
+      </span>
+    </div>
+
+    <div class="alerts">
+      @for (alert of alerts; track alert.title) {
+        <article
+          class="alert"
+          [class.alert--warning]="alert.type === 'warning'"
+          [class.alert--danger]="alert.type === 'danger'"
+        >
+          <span class="alert__dot"></span>
+
+          <div>
+            <strong>{{ alert.title }}</strong>
+            <p>{{ alert.description }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </ui-card>
+</section>

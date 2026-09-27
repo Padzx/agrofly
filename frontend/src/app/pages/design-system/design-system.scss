@@ -1,0 +1,7 @@
+:host { display: grid; gap: 17px; }
+.heading { margin-bottom: 8px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 15px; margin-top: 22px; }
+.swatch { display: grid; gap: 5px; }
+.swatch__sample { height: 64px; border-radius: var(--radius-md); border: 1px solid #52717c; }
+.swatch small { font-size: .74rem; overflow-wrap: anywhere; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
