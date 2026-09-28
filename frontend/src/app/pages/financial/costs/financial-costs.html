@@ -1,0 +1,421 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Custos e Despesas</h1>
+    <p class="muted">
+      Controle e distribuição dos gastos da AgroFly.
+    </p>
+  </div>
+
+  <ui-button
+    variant="secondary"
+    (pressed)="toggleForm()"
+  >
+    {{ showForm() ? 'Fechar formulário' : 'Novo lançamento' }}
+  </ui-button>
+</section>
+
+<div class="preview-notice">
+  <strong>Pré-visualização do frontend</strong>
+  <p>
+    Os lançamentos adicionados aqui são temporários.
+    Não são salvos no banco de dados nem enviados à
+    DRE, ao Fluxo de Caixa ou às Contas a Pagar.
+  </p>
+</div>
+
+<section class="filters" aria-label="Filtros por período">
+  <div class="field">
+    <label for="cost-start">Período inicial</label>
+    <input
+      #startInput
+      id="cost-start"
+      type="month"
+      [value]="startMonth()"
+    />
+  </div>
+
+  <div class="field">
+    <label for="cost-end">Período final</label>
+    <input
+      #endInput
+      id="cost-end"
+      type="month"
+      [value]="endMonth()"
+    />
+  </div>
+
+  <ui-button
+    variant="secondary"
+    size="sm"
+    (pressed)="applyPeriod(startInput.value, endInput.value)"
+  >
+    Aplicar período
+  </ui-button>
+</section>
+
+@if (feedback()) {
+  <p class="feedback" role="status">
+    {{ feedback() }}
+  </p>
+}
+
+@if (showForm()) {
+  <section class="financial-section">
+    <ui-card>
+      <h2>Novo lançamento de teste</h2>
+
+      <form
+        #costForm="ngForm"
+        class="entry-form"
+        (ngSubmit)="saveDraft()"
+      >
+        <div class="field field--wide">
+          <label for="cost-description">
+            Descrição
+          </label>
+
+          <input
+            id="cost-description"
+            name="description"
+            type="text"
+            required
+            maxlength="120"
+            [(ngModel)]="draft.description"
+            placeholder="Ex.: manutenção da aeronave"
+          />
+        </div>
+
+        <div class="field">
+          <label for="cost-competence">
+            Competência
+          </label>
+
+          <input
+            id="cost-competence"
+            name="competence"
+            type="month"
+            required
+            [(ngModel)]="draft.competence"
+          />
+        </div>
+
+        <div class="field">
+          <label for="cost-nature">
+            Classificação
+          </label>
+
+          <select
+            id="cost-nature"
+            name="nature"
+            [(ngModel)]="draft.nature"
+            (ngModelChange)="onNatureChange()"
+          >
+            @for (option of natureOptions; track option.code) {
+              <option [value]="option.code">
+                {{ option.label }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="cost-category">
+            Categoria
+          </label>
+
+          <select
+            id="cost-category"
+            name="category"
+            [(ngModel)]="draft.category"
+          >
+            @for (
+              category of availableCategories;
+              track category.code
+            ) {
+              <option [value]="category.code">
+                {{ category.label }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="cost-amount">
+            Valor (R$)
+          </label>
+
+          <input
+            id="cost-amount"
+            name="amount"
+            type="number"
+            min="0.01"
+            step="0.01"
+            required
+            [(ngModel)]="draft.amount"
+          />
+        </div>
+
+        <div class="field">
+          <label for="cost-aircraft">
+            Aeronave (opcional)
+          </label>
+
+          <input
+            id="cost-aircraft"
+            name="aircraftRef"
+            type="text"
+            [(ngModel)]="draft.aircraftRef"
+            placeholder="Código da aeronave"
+          />
+        </div>
+
+        <div class="field">
+          <label for="cost-contract">
+            Contrato (opcional)
+          </label>
+
+          <input
+            id="cost-contract"
+            name="contractRef"
+            type="text"
+            [(ngModel)]="draft.contractRef"
+            placeholder="Código do contrato"
+          />
+        </div>
+
+        <p class="form-note">
+          Combustível fornecido gratuitamente pelo cliente
+          deve ser registrado em Frota, e não como custo.
+        </p>
+
+        <div class="form-actions">
+          <button
+            class="action-button"
+            type="submit"
+            [disabled]="costForm.invalid || saving()"
+          >
+            Adicionar rascunho
+          </button>
+        </div>
+      </form>
+    </ui-card>
+  </section>
+}
+
+<section class="financial-section">
+  <div class="section-heading">
+    <h2>Resumo do período</h2>
+    <span class="status-chip">{{ statusLabel() }}</span>
+  </div>
+
+  <div class="metrics">
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Custos operacionais</span>
+        <strong class="metric__value">
+          {{ money(summary()?.operatingCosts) }}
+        </strong>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">
+          Despesas administrativas
+        </span>
+        <strong class="metric__value">
+          {{ money(summary()?.administrativeExpenses) }}
+        </strong>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">
+          Despesas comerciais
+        </span>
+        <strong class="metric__value">
+          {{ money(summary()?.commercialExpenses) }}
+        </strong>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Total de gastos</span>
+        <strong class="metric__value">
+          {{ money(summary()?.totalExpenses) }}
+        </strong>
+      </div>
+    </ui-card>
+  </div>
+
+  <p class="section-note">
+    Os indicadores consideram todo o período selecionado.
+    O custo por hectare será disponibilizado quando
+    houver integração com os hectares executados.
+  </p>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="panel-heading">
+      <h2>Distribuição por categoria</h2>
+      <p class="muted">
+        Composição dos custos e despesas do período
+      </p>
+    </div>
+
+    @if (categoryTotals().length > 0) {
+      <div class="distribution">
+        @for (
+          item of categoryTotals();
+          track item.category
+        ) {
+          <div class="distribution__item">
+            <div class="distribution__heading">
+              <span>
+                {{ categoryLabel(item.category) }}
+              </span>
+              <strong>{{ money(item.total) }}</strong>
+            </div>
+
+            <div class="distribution__track">
+              <div
+                class="distribution__bar"
+                [style.width.%]="barWidth(item.total)"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h3>Sem custos registrados</h3>
+        <p>
+          Adicione um lançamento de teste para
+          visualizar a distribuição por categoria.
+        </p>
+      </div>
+    }
+  </ui-card>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="panel-heading">
+      <h2>Lançamentos</h2>
+      <p class="muted">
+        Consulte os gastos classificados no período.
+      </p>
+    </div>
+
+    <div class="list-filters">
+      <div class="field">
+        <label for="cost-search">Pesquisar</label>
+        <input
+          #searchInput
+          id="cost-search"
+          type="search"
+          placeholder="Descrição, aeronave ou contrato"
+          [value]="search()"
+          (input)="search.set(searchInput.value)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="nature-filter">Classificação</label>
+        <select
+          #natureInput
+          id="nature-filter"
+          [value]="natureFilter()"
+          (change)="natureFilter.set(natureInput.value)"
+        >
+          <option value="ALL">Todas</option>
+
+          @for (option of natureOptions; track option.code) {
+            <option [value]="option.code">
+              {{ option.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="category-filter">Categoria</label>
+        <select
+          #categoryInput
+          id="category-filter"
+          [value]="categoryFilter()"
+          (change)="categoryFilter.set(categoryInput.value)"
+        >
+          <option value="ALL">Todas</option>
+
+          @for (category of categories; track category.code) {
+            <option [value]="category.code">
+              {{ category.label }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (filteredRecords().length > 0) {
+      <div class="table-container">
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>Competência</th>
+              <th>Descrição</th>
+              <th>Classificação</th>
+              <th>Categoria</th>
+              <th>Vinculação</th>
+              <th>Valor</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              record of filteredRecords();
+              track record.id
+            ) {
+              <tr>
+                <td>{{ record.competence }}</td>
+                <td>{{ record.description }}</td>
+                <td>{{ natureLabel(record.nature) }}</td>
+                <td>{{ categoryLabel(record.category) }}</td>
+
+                <td>
+                  {{ record.aircraftRef || record.contractRef || '—' }}
+                </td>
+
+                <td>{{ money(record.amount) }}</td>
+
+                <td>
+                  <button
+                    class="table-action"
+                    type="button"
+                    [disabled]="saving()"
+                    (click)="removeRecord(record)"
+                  >
+                    Remover
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h3>Nenhum lançamento encontrado</h3>
+        <p>
+          Não existem registros para os filtros
+          selecionados.
+        </p>
+      </div>
+    }
+  </ui-card>
+</section>

@@ -1,0 +1,47 @@
+@use '../../../../styles/breakpoints' as bp;
+:host { display: block; }
+.page-heading,.section-heading,.panel-heading { display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap; }
+.page-heading { margin-bottom:22px; }.page-heading h1 { margin:4px 0 6px; }
+.page-heading p,.panel-heading p { margin:0;color:var(--muted); }
+.section { margin:28px 0; }.section-title,.section-heading h2,.panel-heading h2 { margin:0;font-size:1rem; }
+.section-heading,.panel-heading { margin-bottom:17px; }
+.preview-notice { padding:15px 18px;border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:var(--radius-md);background:var(--surface); }
+.preview-notice strong { font-size:.82rem; }.preview-notice p { color:var(--muted);font-size:.77rem;line-height:1.6;margin:6px 0 0; }
+.filters,.inline-form { display:flex;align-items:flex-end;flex-wrap:wrap;gap:13px;margin:22px 0; }
+.entry-form { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:19px; }
+.field { display:grid;gap:7px;min-width:0; }.field--wide { grid-column:1 / -1; }
+.field label { color:var(--muted);font-size:.75rem;font-weight:600; }
+.field input,.field select,.field textarea { width:100%;min-width:0;min-height:43px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font:inherit;font-size:.82rem; }
+.field input:focus,.field select:focus,.field textarea:focus { outline:2px solid var(--primary);outline-offset:2px; }
+.filters .field,.inline-form .field { min-width:190px;flex:1; }
+.form-actions { display:flex;justify-content:flex-end; }
+.form-note,.panel-note { color:var(--muted);font-size:.75rem;line-height:1.6; }
+.primary-action,.secondary-action { min-height:43px;padding:0 17px;border-radius:var(--radius-md);font-weight:700;cursor:pointer;font-size:.81rem; }
+.primary-action { border:0;background:var(--primary);color:var(--bg); }
+.secondary-action { border:1px solid var(--border);background:var(--surface);color:var(--text); }
+.primary-action:disabled,.secondary-action:disabled,.table-actions button:disabled { opacity:.5;cursor:not-allowed; }
+.text-action { border:0;background:transparent;color:var(--primary);cursor:pointer; }
+.status-chip,.status-pill,.due-pill { display:inline-block;border:1px solid var(--border);padding:7px 11px;border-radius:999px;color:var(--muted);font-size:.72rem; }
+.status-pill--late { color:var(--danger);border-color:var(--danger); }.status-pill--done { color:var(--primary);border-color:var(--primary); }
+.error,.message { font-size:.8rem;margin:12px 0; }.error { color:var(--danger); }.message { color:var(--primary); }
+.metrics { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px; }
+.metric { display:flex;flex-direction:column;gap:9px;min-width:0; }
+.metric span { font-size:.77rem;color:var(--muted); }.metric strong { color:var(--text);font-size:clamp(1.3rem,2vw,1.85rem);overflow-wrap:anywhere; }.metric small { font-size:.73rem;color:var(--muted); }
+.dashboard-grid { display:grid;grid-template-columns:3fr 2fr;gap:17px; }
+.agenda { display:grid;gap:0; }.agenda-row { padding:13px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px; }
+.agenda-row strong { display:block;font-size:.79rem; }.agenda-row small { display:block;margin-top:5px;font-size:.73rem;color:var(--muted); }
+.agenda-side { display:grid;justify-items:end;gap:7px;white-space:nowrap; }
+.accessory-summary { display:grid;grid-template-columns:1fr auto;gap:15px;font-size:.85rem;align-items:center; }
+.accessory-summary strong { font-size:1.2rem; }.panel-note { margin-top:18px; }
+.list-filters { display:grid;grid-template-columns:minmax(190px,2fr) repeat(3,minmax(130px,1fr));gap:12px;margin:20px 0; }
+.table-wrap { overflow-x:auto; }.fiscal-table { width:100%;border-collapse:collapse; }
+.fiscal-table th,.fiscal-table td { border-bottom:1px solid var(--border);padding:13px 10px;text-align:left;vertical-align:top;font-size:.78rem; }
+.fiscal-table th { font-size:.72rem;color:var(--muted);white-space:nowrap; }.fiscal-table td strong { display:block;font-size:.8rem; }
+.fiscal-table td small { display:block;color:var(--muted);margin-top:6px;overflow-wrap:anywhere; }
+.fiscal-table .amount { text-align:right;white-space:nowrap;font-weight:700; }
+.table-actions { display:flex;flex-wrap:wrap;gap:7px;min-width:140px; }
+.table-actions button { padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:transparent;color:var(--text);cursor:pointer;font-size:.74rem; }
+.empty { min-height:160px;display:grid;align-content:center;justify-items:center;gap:8px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius-md);text-align:center; }
+.empty h3 { margin:0;font-size:.9rem; }.empty p { margin:0;color:var(--muted);font-size:.76rem; }
+@include bp.tablet { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }.dashboard-grid { grid-template-columns:1fr; }.list-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@include bp.mobile { .metrics,.entry-form,.list-filters { grid-template-columns:1fr; }.field--wide { grid-column:auto; }.filters,.inline-form { display:grid;grid-template-columns:1fr; }.filters .field,.inline-form .field { min-width:0; }.dashboard-grid { grid-template-columns:minmax(0,1fr); }.agenda-row { flex-wrap:wrap; }.agenda-side { justify-items:start; }.form-actions { justify-content:stretch; }.primary-action { width:100%; } }

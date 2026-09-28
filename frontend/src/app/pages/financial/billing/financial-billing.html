@@ -1,0 +1,152 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Faturamento e Notas Fiscais</h1>
+    <p class="muted">Prepare documentos de cobrança e acompanhe a emissão fiscal externa.</p>
+  </div>
+  <ui-button (pressed)="openForm()">Novo faturamento</ui-button>
+</section>
+
+<div class="preview-notice" role="note">
+  <strong>Ambiente de pré-visualização — nenhuma nota fiscal é emitida.</strong>
+  <p>Os registros são temporários, desaparecem ao recarregar a página e não alimentam Contas a Receber, DRE ou Fluxo de Caixa. Referências de notas externas são apenas simulações, não comprovantes fiscais.</p>
+</div>
+
+<section class="filters" aria-label="Período de competência">
+  <div class="field"><label for="billing-start">Competência inicial</label>
+    <input #startInput id="billing-start" type="month" [value]="startMonth()" /></div>
+  <div class="field"><label for="billing-end">Competência final</label>
+    <input #endInput id="billing-end" type="month" [value]="endMonth()" /></div>
+  <ui-button variant="secondary" size="sm" (pressed)="applyPeriod(startInput.value, endInput.value)">Aplicar período</ui-button>
+  <span class="status-chip" role="status">{{ statusLabel() }}</span>
+</section>
+
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+@if (message()) { <p class="message" role="status">{{ message() }}</p> }
+
+@if (showForm()) {
+  <section class="section">
+    <ui-card>
+      <div class="panel-header"><h2>Novo documento de faturamento</h2>
+        <ui-button variant="secondary" size="sm" (pressed)="closeForm()">Fechar</ui-button></div>
+      <form #billingForm="ngForm" class="entry-form" (ngSubmit)="saveDraft()">
+        <div class="field"><label for="bill-customer">Cliente *</label>
+          <input id="bill-customer" name="customer" required maxlength="120" [(ngModel)]="draft.customer" /></div>
+        <div class="field"><label for="bill-customer-id">CPF/CNPJ de referência (opcional)</label>
+          <input id="bill-customer-id" name="customerTaxId" maxlength="20" [(ngModel)]="draft.customerTaxId" /></div>
+        <div class="field"><label for="bill-contract">Contrato (opcional)</label>
+          <input id="bill-contract" name="contractRef" maxlength="80" [(ngModel)]="draft.contractRef" /></div>
+        <div class="field"><label for="bill-os">Ordem de serviço (opcional)</label>
+          <input id="bill-os" name="serviceOrderRef" maxlength="80" [(ngModel)]="draft.serviceOrderRef" /></div>
+        <div class="field field--wide"><label for="bill-service">Descrição do serviço *</label>
+          <input id="bill-service" name="serviceDescription" required maxlength="160" [(ngModel)]="draft.serviceDescription" placeholder="Ex.: aplicação aérea concluída" /></div>
+        <div class="field"><label for="bill-competence">Competência *</label>
+          <input id="bill-competence" name="competence" type="month" required [(ngModel)]="draft.competence" /></div>
+        <div class="field"><label for="bill-service-date">Data do serviço *</label>
+          <input id="bill-service-date" name="servicedAt" type="date" required [(ngModel)]="draft.servicedAt" /></div>
+        <div class="field"><label for="bill-hectares">Hectares executados *</label>
+          <input id="bill-hectares" name="hectares" type="number" min="0.01" step="0.01" required [(ngModel)]="draft.hectares" /></div>
+        <div class="field"><label for="bill-unit-price">Preço por hectare (R$) *</label>
+          <input id="bill-unit-price" name="pricePerHectare" type="number" min="0.01" step="0.01" required [(ngModel)]="draft.pricePerHectare" /></div>
+        <div class="field"><label for="bill-mobilization">Mobilização (R$)</label>
+          <input id="bill-mobilization" name="mobilization" type="number" min="0" step="0.01" required [(ngModel)]="draft.mobilization" /></div>
+        <div class="field"><label for="bill-discount">Desconto (R$)</label>
+          <input id="bill-discount" name="discount" type="number" min="0" step="0.01" required [(ngModel)]="draft.discount" /></div>
+        <div class="field field--wide"><label for="bill-notes">Observações</label>
+          <textarea id="bill-notes" name="notes" rows="3" maxlength="400" [(ngModel)]="draft.notes"></textarea></div>
+        <div class="estimate field--wide"><span>Valor comercial estimado (sem apuração de tributos)</span>
+          <strong>{{ money(draft.hectares * draft.pricePerHectare + draft.mobilization - draft.discount) }}</strong></div>
+        <p class="form-note field--wide">O formulário é uma prévia comercial: não valida documentos fiscais, alíquotas, retenções ou regras municipais. A integração futura utilizará os dados reais das ordens de serviço executadas.</p>
+        <div class="form-actions field--wide">
+          <button class="primary-action" type="submit" [disabled]="billingForm.invalid || saving()">Salvar rascunho de teste</button>
+        </div>
+      </form>
+    </ui-card>
+  </section>
+}
+
+<section class="section">
+  <h2 class="section-title">Visão do faturamento</h2>
+  <div class="metrics">
+    <ui-card><div class="metric"><span>Rascunhos</span><strong>{{ totals().drafts }}</strong><small>Preparação</small></div></ui-card>
+    <ui-card><div class="metric"><span>Aguardando emissão</span><strong>{{ money(totals().awaitingIssueAmount) }}</strong><small>{{ totals().awaitingIssue }} documento(s)</small></div></ui-card>
+    <ui-card><div class="metric"><span>Emissão externa simulada</span><strong>{{ money(totals().issuedAmount) }}</strong><small>{{ totals().issued }} documento(s)</small></div></ui-card>
+    <ui-card><div class="metric"><span>Cancelados na prévia</span><strong>{{ totals().cancelled }}</strong><small>Sem efeito fiscal</small></div></ui-card>
+  </div>
+</section>
+
+<section class="section">
+  <ui-card>
+    <div class="panel-header">
+      <div><h2>Documentos de faturamento</h2><p class="muted">Acompanhe os serviços preparados para faturar.</p></div>
+    </div>
+    <div class="list-filters">
+      <div class="field"><label for="bill-search">Pesquisar</label>
+        <input #searchInput id="bill-search" type="search" placeholder="Cliente, contrato ou OS" [value]="search()" (input)="search.set(searchInput.value)" /></div>
+      <div class="field"><label for="bill-status">Situação</label>
+        <select #statusInput id="bill-status" [value]="statusFilter()" (change)="changeStatusFilter(statusInput.value)">
+          <option value="ALL">Todas</option>
+          @for (option of statuses; track option.code) {
+            <option [value]="option.code">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (state() === 'error') {
+      <div class="empty"><h3>Não foi possível carregar os documentos</h3>
+        <ui-button variant="secondary" (pressed)="load()">Tentar novamente</ui-button></div>
+    } @else if (filtered().length > 0) {
+      <div class="table-wrap">
+        <table class="billing-table">
+          <thead><tr><th>Competência</th><th>Cliente / serviço</th><th>Contrato / OS</th><th>Situação</th><th>Valor estimado</th><th>Ações</th></tr></thead>
+          <tbody>
+            @for (item of filtered(); track item.id) {
+              <tr>
+                <td>{{ item.competence }}</td>
+                <td><strong>{{ item.customer }}</strong><small>{{ item.serviceDescription }}</small><small>{{ item.hectares }} ha · {{ money(item.pricePerHectare) }}/ha</small></td>
+                <td>{{ item.contractRef || '—' }}<small>OS: {{ item.serviceOrderRef || '—' }}</small></td>
+                <td><span class="pill" [class.pill--ready]="item.status === 'READY'" [class.pill--issued]="item.status === 'ISSUED'">{{ statusText(item.status) }}</span>
+                  @if (item.externalInvoiceRef) { <small>Ref.: {{ item.externalInvoiceRef }}</small> }
+                  @if (item.issuedAt) { <small>{{ dateText(item.issuedAt) }}</small> }
+                </td>
+                <td class="amount">{{ money(amount(item)) }}</td>
+                <td><div class="table-actions">
+                  @if (item.status === 'DRAFT') {
+                    <button type="button" [disabled]="saving()" (click)="markReady(item)">Preparar</button>
+                    <button type="button" [disabled]="saving()" (click)="remove(item)">Excluir</button>
+                  }
+                  @if (item.status === 'READY') {
+                    <button type="button" [disabled]="saving()" (click)="openExternalForm(item)">Registrar emissão externa</button>
+                    <button type="button" [disabled]="saving()" (click)="cancel(item)">Cancelar na prévia</button>
+                  }
+                  @if (item.status === 'ISSUED' || item.status === 'CANCELLED') { <span class="muted">Sem ações na prévia</span> }
+                </div></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty"><h3>Nenhum documento encontrado</h3>
+        <p>Crie um rascunho de teste ou altere os filtros selecionados.</p></div>
+    }
+  </ui-card>
+</section>
+
+@if (selectedForIssue()) {
+  <section class="section">
+    <ui-card>
+      <div class="panel-header"><h2>Simular registro de emissão externa</h2>
+        <ui-button variant="secondary" size="sm" (pressed)="selectedForIssue.set(null)">Fechar</ui-button></div>
+      <p class="form-note">Esta ação NÃO emite nota, não consulta prefeitura e não registra informação fiscal verdadeira. Apenas demonstra como um documento externo seria vinculado futuramente.</p>
+      <form #issueForm="ngForm" class="issue-form" (ngSubmit)="recordExternal()">
+        <div class="field"><label for="external-ref">Referência externa de teste *</label>
+          <input id="external-ref" name="externalRef" maxlength="100" required [(ngModel)]="externalInvoiceRef" placeholder="Ex.: SIMULACAO-001" /></div>
+        <div class="field"><label for="external-date">Data simulada *</label>
+          <input id="external-date" name="externalDate" type="date" required [(ngModel)]="externalIssuedAt" /></div>
+        <button class="primary-action" type="submit" [disabled]="issueForm.invalid || saving()">Registrar somente na prévia</button>
+      </form>
+    </ui-card>
+  </section>
+}

@@ -1,0 +1,98 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Financeiro</h1>
+
+    <p class="muted">
+      Acompanhe os resultados e a posição financeira
+      da AgroFly em um único lugar.
+    </p>
+  </div>
+
+  <span class="status-chip" role="status">{{ statusLabel() }}</span>
+</section>
+
+<section
+  class="financial-section"
+  aria-labelledby="performance-title"
+>
+  <div class="section-heading">
+    <h2 id="performance-title">
+      Desempenho financeiro
+    </h2>
+  </div>
+
+  <div class="metrics">
+    @for (indicator of indicators(); track indicator.label) {
+      <ui-card>
+        <div class="metric">
+          <span class="metric__label">
+            {{ indicator.label }}
+          </span>
+
+          <strong class="metric__value">
+            {{ indicator.value }}
+          </strong>
+
+          <p class="metric__description">
+            {{ indicator.description }}
+          </p>
+        </div>
+      </ui-card>
+    }
+  </div>
+</section>
+
+<section
+  class="financial-section"
+  aria-labelledby="cash-title"
+>
+  <div class="section-heading">
+    <h2 id="cash-title">Posição financeira</h2>
+  </div>
+
+  <div class="cash-grid">
+    @for (indicator of cashIndicators();
+      track indicator.label
+    ) {
+      <ui-card>
+        <div class="metric">
+          <span class="metric__label">
+            {{ indicator.label }}
+          </span>
+
+          <strong class="metric__value">
+            {{ indicator.value }}
+          </strong>
+
+          <p class="metric__description">
+            {{ indicator.description }}
+          </p>
+        </div>
+      </ui-card>
+    }
+  </div>
+</section>
+
+<section
+  class="financial-section"
+  aria-labelledby="cash-flow-title"
+>
+  <ui-card>
+    <div class="section-heading">
+      <h2 id="cash-flow-title">
+        Projeção do fluxo de caixa
+      </h2>
+    </div>
+
+    <div class="empty-state">
+      <h3>{{ emptyTitle() }}</h3>
+
+      <p>
+        A projeção será apresentada quando os
+        primeiros lançamentos financeiros forem
+        registrados no sistema.
+      </p>
+    </div>
+  </ui-card>
+</section>

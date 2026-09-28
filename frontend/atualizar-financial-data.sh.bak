@@ -1,0 +1,410 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(git branch --show-current)" != "feature/financial" ]]; then
+  echo "ERRO: entre na branch feature/financial."
+  exit 1
+fi
+
+python3 - <<'PY'
+from pathlib import Path
+from datetime import datetime
+import re
+import shutil
+
+root = Path("src/app")
+
+model = root / "core/financial/financial-overview.model.ts"
+service = root / "core/financial/financial-overview.service.ts"
+component = root / "pages/financial/overview/financial-overview.ts"
+template = root / "pages/financial/overview/financial-overview.html"
+config = root / "app.config.ts"
+
+# Validar antes de modificar qualquer arquivo.
+
+for path in [component, template, config]:
+    if not path.is_file():
+        raise SystemExit(f"Arquivo não encontrado: {path}")
+
+for path in [model, service]:
+    if path.exists():
+        raise SystemExit(
+            f"{path} já existe. "
+            "Atualização interrompida para não sobrescrever código."
+        )
+
+old_ts = component.read_text(encoding="utf-8")
+old_html = template.read_text(encoding="utf-8")
+old_config = config.read_text(encoding="utf-8")
+
+if (
+    "export class FinancialOverview" not in old_ts
+    or "readonly indicators" not in old_ts
+    or "readonly cashIndicators" not in old_ts
+):
+    raise SystemExit(
+        "O componente financeiro foi modificado. "
+        "Precisamos conferir sua versão antes de atualizar."
+    )
+
+# ==========================================
+# 1. CONTRATO DE DADOS
+# ==========================================
+
+model_content = """export interface FinancialOverviewDto {
+  status: 'READY' | 'EMPTY';
+
+  period: {
+    start: string;
+    end: string;
+  };
+
+  financial: {
+    netRevenue: number | null;
+    operatingCosts: number | null;
+    operatingResult: number | null;
+    operatingMargin: number | null;
+
+    cashBalance: number | null;
+    overdueReceivables: number | null;
+  };
+
+  updatedAt: string | null;
+}
+"""
+
+# ==========================================
+# 2. SERVIÇO ANGULAR
+# ==========================================
+
+service_content = """import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { FinancialOverviewDto } from './financial-overview.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class FinancialOverviewService {
+  private readonly http = inject(HttpClient);
+
+  private readonly endpoint =
+    '/api/v1/financial/overview';
+
+  getOverview(): Observable<FinancialOverviewDto> {
+    return this.http.get<FinancialOverviewDto>(
+      this.endpoint
+    );
+  }
+}
+"""
+
+# ==========================================
+# 3. COMPONENTE COM SIGNALS
+# ==========================================
+
+component_content = """import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+
+import { takeUntilDestroyed } from
+  '@angular/core/rxjs-interop';
+
+import { Card } from
+  '../../../shared/ui/card/card';
+
+import { FinancialOverviewDto } from
+  '../../../core/financial/financial-overview.model';
+
+import { FinancialOverviewService } from
+  '../../../core/financial/financial-overview.service';
+
+interface FinancialIndicator {
+  label: string;
+  value: string;
+  description: string;
+}
+
+type LoadingState =
+  | 'loading'
+  | 'ready'
+  | 'empty'
+  | 'unavailable';
+
+@Component({
+  selector: 'app-financial-overview',
+  imports: [Card],
+  templateUrl: './financial-overview.html',
+  styleUrl: './financial-overview.scss',
+})
+export class FinancialOverview implements OnInit {
+
+  private readonly financialService =
+    inject(FinancialOverviewService);
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly snapshot =
+    signal<FinancialOverviewDto | null>(null);
+
+  readonly state = signal<LoadingState>('loading');
+
+  readonly statusLabel = computed(() => {
+    switch (this.state()) {
+      case 'loading':
+        return 'Carregando dados';
+
+      case 'ready':
+        return 'Dados atualizados';
+
+      case 'empty':
+        return 'Sem lançamentos';
+
+      default:
+        return 'Dados indisponíveis';
+    }
+  });
+
+  readonly emptyTitle = computed(() =>
+    this.state() === 'unavailable'
+      ? 'Integração financeira indisponível'
+      : 'Projeção ainda não disponível'
+  );
+
+  readonly indicators = computed<FinancialIndicator[]>(
+    () => {
+      const data = this.snapshot()?.financial;
+
+      return [
+        {
+          label: 'Receita líquida',
+          value: this.money(data?.netRevenue),
+          description: 'Receita no período selecionado',
+        },
+        {
+          label: 'Custos operacionais',
+          value: this.money(data?.operatingCosts),
+          description: 'Custos consolidados da operação',
+        },
+        {
+          label: 'Resultado operacional',
+          value: this.money(data?.operatingResult),
+          description: 'Resultado do período',
+        },
+        {
+          label: 'Margem operacional',
+          value: this.percentage(
+            data?.operatingMargin
+          ),
+          description: 'Margem sobre a receita',
+        },
+      ];
+    }
+  );
+
+  readonly cashIndicators = computed<FinancialIndicator[]>(
+    () => {
+      const data = this.snapshot()?.financial;
+
+      return [
+        {
+          label: 'Saldo disponível',
+          value: this.money(data?.cashBalance),
+          description: 'Saldo financeiro consolidado',
+        },
+        {
+          label: 'Recebimentos em atraso',
+          value: this.money(data?.overdueReceivables),
+          description: 'Valores vencidos e não recebidos',
+        },
+      ];
+    }
+  );
+
+  ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.state.set('loading');
+
+    this.financialService
+      .getOverview()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.snapshot.set(data);
+
+          this.state.set(
+            data.status === 'EMPTY'
+              ? 'empty'
+              : 'ready'
+          );
+        },
+
+        error: () => {
+          this.snapshot.set(null);
+          this.state.set('unavailable');
+        },
+      });
+  }
+
+  private money(
+    value: number | null | undefined
+  ): string {
+    if (value == null) {
+      return 'R$ —';
+    }
+
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+  }
+
+  private percentage(
+    value: number | null | undefined
+  ): string {
+    if (value == null) {
+      return '— %';
+    }
+
+    return (
+      value.toLocaleString('pt-BR', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 2,
+      }) + '%'
+    );
+  }
+}
+"""
+
+# ==========================================
+# 4. ATUALIZAR TEMPLATE
+# ==========================================
+
+new_html, first = re.subn(
+    r'@for\\s*\\(\\s*indicator of indicators\\s*;',
+    '@for (indicator of indicators();',
+    old_html,
+)
+
+new_html, second = re.subn(
+    r'@for\\s*\\(\\s*indicator of cashIndicators\\s*;',
+    '@for (indicator of cashIndicators();',
+    new_html,
+)
+
+new_html, third = re.subn(
+    r'<span class="status-chip">\\s*Aguardando dados\\s*</span>',
+    '<span class="status-chip" role="status">{{ statusLabel() }}</span>',
+    new_html,
+)
+
+new_html, fourth = re.subn(
+    r'<h3>Nenhum dado financeiro disponível</h3>',
+    '<h3>{{ emptyTitle() }}</h3>',
+    new_html,
+)
+
+if (first, second, third, fourth) != (1, 1, 1, 1):
+    raise SystemExit(
+        "Template diferente do esperado. "
+        "Nenhum arquivo foi alterado."
+    )
+
+# ==========================================
+# 5. CONFIGURAR HTTP CLIENT
+# ==========================================
+
+new_config = old_config
+
+if not re.search(r'\\bprovideHttpClient\\s*\\(', new_config):
+
+    if 'provideRouter(routes)' not in new_config:
+        raise SystemExit(
+            "Não foi possível localizar provideRouter(routes). "
+            "Nenhum arquivo foi alterado."
+        )
+
+    if re.search(r'\\bprovideHttpClient\\b', new_config):
+        raise SystemExit(
+            "provideHttpClient já foi importado, mas não configurado. "
+            "Confira app.config.ts."
+        )
+
+    new_config = (
+        "import { provideHttpClient } "
+        "from '@angular/common/http';\\n"
+        + new_config
+    )
+
+    new_config = new_config.replace(
+        'provideRouter(routes)',
+        'provideRouter(routes), provideHttpClient()',
+        1,
+    )
+
+# ==========================================
+# 6. BACKUPS E GRAVAÇÃO
+# ==========================================
+
+timestamp = datetime.now().strftime(
+    '%Y%m%d-%H%M%S-%f'
+)
+
+changes = [
+    (component, old_ts, component_content),
+    (template, old_html, new_html),
+    (config, old_config, new_config),
+]
+
+# Primeiro, criar todos os backups.
+
+for path, original, updated in changes:
+    if original != updated:
+        backup = path.with_name(
+            path.name + '.bak-' + timestamp
+        )
+
+        shutil.copy2(path, backup)
+        print(f'Backup: {backup}')
+
+# Depois, realizar a atualização.
+
+model.parent.mkdir(
+    parents=True,
+    exist_ok=True
+)
+
+model.write_text(
+    model_content,
+    encoding='utf-8'
+)
+
+service.write_text(
+    service_content,
+    encoding='utf-8'
+)
+
+for path, original, updated in changes:
+    if original != updated:
+        path.write_text(
+            updated,
+            encoding='utf-8'
+        )
+
+        print(f'Atualizado: {path}')
+
+print('\\nCamada financeira criada.')
+PY
+
+echo
+echo "Compilando o Angular..."
+npm run build

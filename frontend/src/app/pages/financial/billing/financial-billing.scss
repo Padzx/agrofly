@@ -1,0 +1,44 @@
+@use '../../../../styles/breakpoints' as bp;
+:host { display: block; }
+.page-heading,.panel-header { display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap; }
+.page-heading { margin-bottom:22px; }
+.page-heading h1 { margin:4px 0 7px; }
+.page-heading p,.panel-header p { margin:0;color:var(--muted); }
+.preview-notice { border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:var(--radius-md);padding:15px 17px;background:var(--surface); }
+.preview-notice strong { font-size:.82rem; }
+.preview-notice p { margin:6px 0 0;color:var(--muted);font-size:.78rem;line-height:1.6; }
+.filters,.list-filters,.issue-form { display:flex;flex-wrap:wrap;align-items:flex-end;gap:13px;margin:22px 0; }
+.field { display:grid;gap:6px;min-width:0; }
+.field label { color:var(--muted);font-size:.76rem;font-weight:600; }
+.field input,.field select,.field textarea { width:100%;min-width:0;min-height:43px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);padding:9px 12px;font:inherit;font-size:.83rem; }
+.field input:focus,.field select:focus,.field textarea:focus { outline:2px solid var(--primary);outline-offset:2px; }
+.filters .field { min-width:180px; }
+.status-chip,.pill { display:inline-block;border:1px solid var(--border);padding:7px 11px;border-radius:999px;color:var(--muted);font-size:.74rem; }
+.pill--ready { border-color:var(--primary);color:var(--primary); }
+.pill--issued { border-color:var(--primary);background:var(--surface); }
+.error,.message { margin:14px 0;font-size:.82rem; }
+.error { color:var(--danger); }.message { color:var(--primary); }
+.section { margin:28px 0; }.section-title { margin:0 0 15px;font-size:1rem; }
+.panel-header { margin-bottom:19px; }.panel-header h2 { margin:0 0 5px;font-size:1rem; }
+.entry-form { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:19px; }
+.field--wide { grid-column:1 / -1; }
+.estimate { display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;font-size:.81rem; }
+.estimate strong { font-size:1.1rem; }
+.form-note { color:var(--muted);font-size:.77rem;line-height:1.6; }
+.form-actions { display:flex;justify-content:flex-end; }
+.primary-action { min-height:43px;border:0;border-radius:var(--radius-md);background:var(--primary);color:var(--bg);padding:0 17px;font-weight:700;cursor:pointer; }
+.primary-action:disabled,.table-actions button:disabled { opacity:.5;cursor:not-allowed; }
+.metrics { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px; }
+.metric { display:flex;flex-direction:column;gap:9px;min-width:0; }
+.metric span { color:var(--muted);font-size:.77rem; }.metric strong { color:var(--text);font-size:clamp(1.35rem,2vw,1.85rem);overflow-wrap:anywhere; }.metric small { color:var(--muted);font-size:.73rem; }
+.list-filters { display:grid;grid-template-columns:minmax(220px,2fr) minmax(175px,1fr); }
+.table-wrap { overflow-x:auto; }.billing-table { width:100%;border-collapse:collapse; }
+.billing-table th,.billing-table td { padding:13px 11px;text-align:left;border-bottom:1px solid var(--border);font-size:.77rem;vertical-align:top; }
+.billing-table th { color:var(--muted);font-size:.72rem;white-space:nowrap; }.billing-table td strong { display:block;font-size:.8rem; }.billing-table td small { display:block;color:var(--muted);margin-top:5px; }
+.billing-table .amount { text-align:right;white-space:nowrap;font-weight:700; }
+.table-actions { display:flex;flex-wrap:wrap;gap:7px;min-width:160px; }.table-actions button { border:1px solid var(--border);background:transparent;color:var(--text);padding:7px 10px;border-radius:var(--radius-md);cursor:pointer;font-size:.73rem; }
+.empty { display:grid;justify-items:center;align-content:center;gap:9px;min-height:170px;border:1px dashed var(--border);border-radius:var(--radius-md);padding:20px;text-align:center; }
+.empty h3 { margin:0;font-size:.91rem; }.empty p { color:var(--muted);font-size:.78rem;margin:0; }
+.issue-form .field { min-width:210px;flex:1; }
+@include bp.tablet { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@include bp.mobile { .metrics,.entry-form,.list-filters { grid-template-columns:1fr; }.field--wide { grid-column:auto; }.filters,.issue-form { display:grid;grid-template-columns:1fr; }.filters .field,.issue-form .field { min-width:0; }.form-actions { justify-content:stretch; }.primary-action { width:100%; } }
