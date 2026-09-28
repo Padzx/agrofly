@@ -1,0 +1,52 @@
+import { Component } from '@angular/core';
+import { Card } from '../../../shared/ui/card/card';
+
+interface FinancialIndicator {
+  label: string;
+  value: string;
+  description: string;
+}
+
+@Component({
+  selector: 'app-financial-overview',
+  imports: [Card],
+  templateUrl: './financial-overview.html',
+  styleUrl: './financial-overview.scss',
+})
+export class FinancialOverview {
+  readonly indicators: FinancialIndicator[] = [
+    {
+      label: 'Receita líquida',
+      value: 'R$ —',
+      description: 'Receita no período selecionado',
+    },
+    {
+      label: 'Custos operacionais',
+      value: 'R$ —',
+      description: 'Custos consolidados da operação',
+    },
+    {
+      label: 'Resultado operacional',
+      value: 'R$ —',
+      description: 'Resultado do período',
+    },
+    {
+      label: 'Margem operacional',
+      value: '— %',
+      description: 'Margem sobre a receita',
+    },
+  ];
+
+  readonly cashIndicators: FinancialIndicator[] = [
+    {
+      label: 'Saldo disponível',
+      value: 'R$ —',
+      description: 'Saldo financeiro consolidado',
+    },
+    {
+      label: 'Recebimentos em atraso',
+      value: 'R$ —',
+      description: 'Valores vencidos e não recebidos',
+    },
+  ];
+}

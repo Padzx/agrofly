@@ -3,6 +3,13 @@ import { Routes } from '@angular/router';
 import { AppShell } from './layout/app-shell/app-shell';
 import { DashboardHome } from './pages/dashboard-home/dashboard-home';
 import { ComingSoon } from './pages/coming-soon/coming-soon';
+import { FinancialTaxes } from './pages/financial/taxes/financial-taxes';
+import { FinancialBilling } from './pages/financial/billing/financial-billing';
+import { FinancialAccounts } from './pages/financial/accounts/financial-accounts';
+import { FinancialCosts } from './pages/financial/costs/financial-costs';
+import { FinancialCashFlow } from './pages/financial/cash-flow/financial-cash-flow';
+import { FinancialDre } from './pages/financial/dre/financial-dre';
+import { FinancialOverview } from './pages/financial/overview/financial-overview';
 import { DesignSystem } from './pages/design-system/design-system';
 
 export const routes: Routes = [
@@ -33,38 +40,38 @@ export const routes: Routes = [
 
       {
         path: 'financeiro',
-        component: ComingSoon,
+        component: FinancialOverview,
         title: 'Financeiro | AgroFly'
       },
       {
         path: 'financeiro/dre',
-        component: ComingSoon,
+        component: FinancialDre,
         title: 'DRE Gerencial | AgroFly'
       },
       {
         path: 'financeiro/fluxo-caixa',
-        component: ComingSoon,
+        component: FinancialCashFlow,
         title: 'Fluxo de Caixa | AgroFly'
       },
       {
         path: 'financeiro/custos',
-        component: ComingSoon,
+        component: FinancialCosts,
         title: 'Custos e Despesas | AgroFly'
       },
 
       {
         path: 'financeiro/contas-pagar-receber',
-        component: ComingSoon,
+        component: FinancialAccounts,
         title: 'Contas a Pagar e Receber | AgroFly'
       },
       {
         path: 'financeiro/faturamento',
-        component: ComingSoon,
+        component: FinancialBilling,
         title: 'Faturamento e Notas Fiscais | AgroFly'
       },
       {
         path: 'financeiro/tributos',
-        component: ComingSoon,
+        component: FinancialTaxes,
         title: 'Tributos e Obrigações | AgroFly'
       },
 

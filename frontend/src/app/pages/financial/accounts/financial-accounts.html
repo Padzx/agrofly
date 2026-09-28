@@ -1,0 +1,218 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Contas a Pagar e Receber</h1>
+    <p class="muted">Organize os títulos, vencimentos, recebimentos e pagamentos da AgroFly.</p>
+  </div>
+  <div class="heading-actions">
+    <ui-button variant="secondary" (pressed)="openForm('PAYABLE')">Nova conta a pagar</ui-button>
+    <ui-button (pressed)="openForm('RECEIVABLE')">Nova conta a receber</ui-button>
+  </div>
+</section>
+
+<div class="preview-notice" role="note">
+  <strong>Pré-visualização do frontend</strong>
+  <p>Cadastros e baixas são temporários, apenas nesta sessão. Eles não alteram a DRE,
+  o Fluxo de Caixa nem outros módulos. O período abaixo filtra títulos por vencimento.</p>
+</div>
+
+<section class="filters" aria-label="Filtros dos títulos">
+  <div class="field">
+    <label for="accounts-start">Mês inicial</label>
+    <input #startInput id="accounts-start" type="month" [value]="startMonth()" />
+  </div>
+  <div class="field">
+    <label for="accounts-end">Mês final</label>
+    <input #endInput id="accounts-end" type="month" [value]="endMonth()" />
+  </div>
+  <ui-button variant="secondary" size="sm" (pressed)="applyPeriod(startInput.value, endInput.value)">Aplicar período</ui-button>
+  <span class="status-chip" role="status">{{ statusLabel() }}</span>
+</section>
+
+@if (errorMessage()) { <p class="message message--error" role="alert">{{ errorMessage() }}</p> }
+@if (feedback()) { <p class="message" role="status">{{ feedback() }}</p> }
+
+@if (showForm()) {
+  <section class="module-section">
+    <ui-card>
+      <div class="section-heading">
+        <h2>Novo título de teste</h2>
+        <button type="button" class="text-button" (click)="cancelForm()">Fechar</button>
+      </div>
+      <form #accountForm="ngForm" class="form-grid" (ngSubmit)="saveDraft()">
+        <div class="field">
+          <label for="account-direction">Tipo</label>
+          <select id="account-direction" name="direction" [(ngModel)]="draft.direction" (ngModelChange)="onDraftDirectionChange()">
+            @for (direction of directions; track direction.code) {
+              <option [value]="direction.code">{{ direction.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="account-party">{{ draft.direction === 'PAYABLE' ? 'Fornecedor / favorecido' : 'Cliente / pagador' }}</label>
+          <input id="account-party" name="counterparty" required maxlength="120" [(ngModel)]="draft.counterparty" />
+        </div>
+        <div class="field field--wide">
+          <label for="account-description">Descrição</label>
+          <input id="account-description" name="description" required maxlength="160" [(ngModel)]="draft.description" />
+        </div>
+        <div class="field">
+          <label for="account-category">Categoria</label>
+          <select id="account-category" name="category" [(ngModel)]="draft.category">
+            @for (category of availableCategories; track category.code) {
+              <option [value]="category.code">{{ category.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="account-competence">Competência</label>
+          <input id="account-competence" type="month" name="competence" required [(ngModel)]="draft.competence" />
+        </div>
+        <div class="field">
+          <label for="account-issue">Emissão</label>
+          <input id="account-issue" type="date" name="issueDate" required [(ngModel)]="draft.issueDate" />
+        </div>
+        <div class="field">
+          <label for="account-due">Vencimento</label>
+          <input id="account-due" type="date" name="dueDate" required [(ngModel)]="draft.dueDate" />
+        </div>
+        <div class="field">
+          <label for="account-value">Valor (R$)</label>
+          <input id="account-value" type="number" min="0.01" step="0.01" name="amount" required [(ngModel)]="draft.amount" />
+        </div>
+        <div class="field">
+          <label for="account-contract">Contrato (opcional)</label>
+          <input id="account-contract" name="contractRef" [(ngModel)]="draft.contractRef" placeholder="Referência do contrato" />
+        </div>
+        <p class="form-note field--wide">Este formulário é demonstrativo. A vinculação real ao contrato e a validação financeira serão implementadas posteriormente.</p>
+        <div class="form-actions field--wide">
+          <button class="primary-button" type="submit" [disabled]="accountForm.invalid || saving()">Salvar título de teste</button>
+        </div>
+      </form>
+    </ui-card>
+  </section>
+}
+
+<section class="module-section">
+  <h2 class="section-title">Posição dos títulos com vencimento no período</h2>
+  <div class="metrics">
+    <ui-card><div class="metric"><span>A receber em aberto</span><strong>{{ money(summary()?.receivable) }}</strong></div></ui-card>
+    <ui-card><div class="metric"><span>A pagar em aberto</span><strong>{{ money(summary()?.payable) }}</strong></div></ui-card>
+    <ui-card><div class="metric"><span>Recebíveis vencidos</span><strong>{{ money(summary()?.overdueReceivable) }}</strong></div></ui-card>
+    <ui-card><div class="metric"><span>Pagamentos vencidos</span><strong>{{ money(summary()?.overduePayable) }}</strong></div></ui-card>
+  </div>
+</section>
+
+<section class="module-section">
+  <ui-card>
+    <div class="section-heading">
+      <div><h2>Títulos e movimentações</h2><p class="muted">Cadastre, filtre e faça baixas totais ou parciais.</p></div>
+    </div>
+    <div class="list-filters">
+      <div class="field">
+        <label for="accounts-search">Pesquisar</label>
+        <input #searchInput id="accounts-search" type="search" placeholder="Descrição, cliente, fornecedor ou contrato" [value]="search()" (input)="search.set(searchInput.value)" />
+      </div>
+      <div class="field">
+        <label for="accounts-direction">Tipo</label>
+        <select #directionInput id="accounts-direction" [value]="directionFilter()" (change)="setDirectionFilter(directionInput.value)">
+          <option value="ALL">Todos</option><option value="RECEIVABLE">A receber</option><option value="PAYABLE">A pagar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="accounts-status">Situação</label>
+        <select #statusInput id="accounts-status" [value]="statusFilter()" (change)="setStatusFilter(statusInput.value)">
+          <option value="ALL">Todas</option><option value="OPEN">Em aberto</option>
+          <option value="PARTIAL">Parciais</option><option value="OVERDUE">Vencidas</option>
+          <option value="SETTLED">Liquidadas</option>
+        </select>
+      </div>
+    </div>
+    @if (state() === 'error') {
+      <div class="empty-state"><h3>Não foi possível carregar os títulos</h3>
+        <button class="text-button" type="button" (click)="load()">Tentar novamente</button></div>
+    } @else if (filtered().length > 0) {
+      <div class="table-wrapper">
+        <table class="accounts-table">
+          <thead><tr><th>Vencimento</th><th>Descrição / contraparte</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Saldo</th><th>Situação</th><th>Ações</th></tr></thead>
+          <tbody>
+            @for (item of filtered(); track item.id) {
+              <tr>
+                <td>{{ displayDate(item.dueDate) }}</td>
+                <td><strong>{{ item.description }}</strong><small>{{ item.counterparty }}@if (item.contractRef) { · {{ item.contractRef }} }</small></td>
+                <td>{{ directionLabel(item.direction) }}</td>
+                <td>{{ categoryLabel(item.category) }}</td>
+                <td class="money-cell">{{ money(item.amount) }}</td>
+                <td class="money-cell">{{ money(remaining(item)) }}</td>
+                <td><span class="account-status" [class.account-status--overdue]="isOverdue(item)" [class.account-status--settled]="isSettled(item)">{{ statusText(item) }}</span></td>
+                <td class="action-cell">
+                  @if (!isSettled(item)) {
+                    <button type="button" class="text-button" (click)="openSettlement(item)">Registrar baixa</button>
+                  }
+                  <button type="button" class="text-button" (click)="toggleHistory(item.id)">{{ historyTarget() === item.id ? 'Ocultar' : 'Histórico' }}</button>
+                  @if (!item.settlements.length) {
+                    <button type="button" class="text-button text-button--danger" (click)="requestDelete(item)">Excluir</button>
+                  }
+                </td>
+              </tr>
+              @if (settlementTarget() === item.id) {
+                <tr><td colspan="8"><form class="inline-panel" #settleForm="ngForm" (ngSubmit)="settle(item)">
+                  <strong>{{ item.direction === 'RECEIVABLE' ? 'Registrar recebimento' : 'Registrar pagamento' }}</strong>
+                  <span class="muted">Saldo atual: {{ money(remaining(item)) }}</span>
+                  <div class="inline-fields">
+                    <div class="field"><label [for]="'settle-date-' + item.id">Data da baixa</label>
+                      <input [id]="'settle-date-' + item.id" type="date" name="date" required [(ngModel)]="settlement.date" /></div>
+                    <div class="field"><label [for]="'settle-amount-' + item.id">Valor da baixa</label>
+                      <input [id]="'settle-amount-' + item.id" type="number" min="0.01" [max]="remaining(item)" step="0.01" name="amount" required [(ngModel)]="settlement.amount" /></div>
+                    <div class="field"><label [for]="'settle-method-' + item.id">Forma</label>
+                      <select [id]="'settle-method-' + item.id" name="method" [(ngModel)]="settlement.method">
+                        @for (method of methods; track method.code) { <option [value]="method.code">{{ method.label }}</option> }
+                      </select></div>
+                  </div>
+                  <div class="inline-actions"><button class="primary-button" type="submit" [disabled]="settleForm.invalid || saving()">Confirmar baixa</button>
+                    <button class="text-button" type="button" (click)="cancelSettlement()">Cancelar</button></div>
+                </form></td></tr>
+              }
+              @if (historyTarget() === item.id) {
+                <tr><td colspan="8"><div class="inline-panel"><strong>Histórico de baixas</strong>
+                  @if (!item.settlements.length) { <p class="muted">Nenhuma baixa registrada.</p> }
+                  @for (entry of item.settlements; track entry.id) {
+                    <div class="history-row"><span>{{ displayDate(entry.date) }} · {{ methodLabel(entry.method) }}</span><strong>{{ money(entry.amount) }}</strong></div>
+                  }
+                </div></td></tr>
+              }
+              @if (deleteTarget() === item.id) {
+                <tr><td colspan="8"><div class="inline-panel"><strong>Excluir este título de teste?</strong>
+                  <p class="muted">A exclusão não pode ser desfeita nesta sessão.</p>
+                  <div class="inline-actions"><button class="danger-button" type="button" [disabled]="saving()" (click)="confirmDelete(item.id)">Excluir</button>
+                    <button class="text-button" type="button" (click)="deleteTarget.set(null)">Cancelar</button></div>
+                </div></td></tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state"><h3>Nenhum título encontrado</h3>
+        <p>Altere os filtros ou cadastre um título de teste.</p></div>
+    }
+  </ui-card>
+</section>
+
+<section class="module-section">
+  <ui-card>
+    <div class="section-heading"><h2>Próximos vencimentos</h2><span class="muted">Até cinco títulos do período selecionado</span></div>
+    @if (upcoming().length) {
+      <div class="upcoming-list">
+        @for (item of upcoming(); track item.id) {
+          <div class="upcoming-item"><div><strong>{{ item.description }}</strong>
+            <small>{{ item.counterparty }} · {{ displayDate(item.dueDate) }}</small></div>
+            <div class="upcoming-value"><strong>{{ money(remaining(item)) }}</strong><span>{{ directionLabel(item.direction) }}</span></div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state"><h3>Sem próximos vencimentos</h3><p>Não há títulos futuros em aberto no período.</p></div>
+    }
+  </ui-card>
+</section>

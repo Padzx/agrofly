@@ -1,0 +1,283 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Fluxo de Caixa</h1>
+    <p class="muted">
+      Acompanhe entradas, saídas e a posição
+      financeira da AgroFly.
+    </p>
+  </div>
+
+  <span class="status-chip" role="status">
+    {{ statusLabel() }}
+  </span>
+</section>
+
+<section class="filters" aria-label="Filtros do fluxo de caixa">
+  <div class="filter-field">
+    <label for="cash-start">Período inicial</label>
+    <input
+      #startInput
+      id="cash-start"
+      type="month"
+      [value]="startMonth()"
+    />
+  </div>
+
+  <div class="filter-field">
+    <label for="cash-end">Período final</label>
+    <input
+      #endInput
+      id="cash-end"
+      type="month"
+      [value]="endMonth()"
+    />
+  </div>
+
+  <ui-button
+    variant="secondary"
+    size="sm"
+    [loading]="state() === 'loading'"
+    (pressed)="applyPeriod(startInput.value, endInput.value)"
+  >
+    Aplicar filtros
+  </ui-button>
+</section>
+
+@if (validationError()) {
+  <p class="filter-error" role="alert">
+    {{ validationError() }}
+  </p>
+}
+
+@if (state() === 'unavailable') {
+  <ui-card>
+    <div class="feedback">
+      <h2>Não foi possível carregar o fluxo de caixa</h2>
+      <p class="muted">
+        Verifique a conexão e tente novamente.
+      </p>
+      <ui-button variant="secondary" (pressed)="load()">
+        Tentar novamente
+      </ui-button>
+    </div>
+  </ui-card>
+}
+
+<section class="financial-section">
+  <h2 class="section-title">Posição financeira</h2>
+
+  <div class="metrics">
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Saldo inicial</span>
+        <strong class="metric__value">
+          {{ money(summary()?.openingBalance) }}
+        </strong>
+        <span class="metric__note">Início do período</span>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Entradas realizadas</span>
+        <strong class="metric__value">
+          {{ money(summary()?.realizedInflows) }}
+        </strong>
+        <span class="metric__note">Valores recebidos</span>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Saídas realizadas</span>
+        <strong class="metric__value">
+          {{ money(summary()?.realizedOutflows) }}
+        </strong>
+        <span class="metric__note">Valores pagos</span>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Saldo final</span>
+        <strong class="metric__value">
+          {{ money(summary()?.closingBalance) }}
+        </strong>
+        <span class="metric__note">Fim do período</span>
+      </div>
+    </ui-card>
+  </div>
+</section>
+
+<section class="financial-section">
+  <h2 class="section-title">Projeção financeira</h2>
+
+  <div class="forecast-grid">
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Previsto a receber</span>
+        <strong class="metric__value metric__value--small">
+          {{ money(summary()?.expectedInflows) }}
+        </strong>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Previsto a pagar</span>
+        <strong class="metric__value metric__value--small">
+          {{ money(summary()?.expectedOutflows) }}
+        </strong>
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+        <span class="metric__label">Saldo projetado</span>
+        <strong class="metric__value metric__value--small">
+          {{ money(summary()?.projectedBalance) }}
+        </strong>
+      </div>
+    </ui-card>
+  </div>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="panel-heading">
+      <div>
+        <h2>Evolução do caixa</h2>
+        <p class="muted">
+          Entradas e saídas realizadas e previstas
+        </p>
+      </div>
+    </div>
+
+    @if (timeline().length > 0) {
+      <div class="chart">
+        @for (point of timeline(); track point.month) {
+          <div class="chart__group">
+            <div class="chart__bars">
+              <span
+                class="chart__bar chart__bar--in"
+                [style.height.%]="barHeight(point.realizedInflows)"
+                title="Entradas realizadas"
+              ></span>
+              <span
+                class="chart__bar chart__bar--out"
+                [style.height.%]="barHeight(point.realizedOutflows)"
+                title="Saídas realizadas"
+              ></span>
+              <span
+                class="chart__bar chart__bar--forecast-in"
+                [style.height.%]="barHeight(point.expectedInflows)"
+                title="Entradas previstas"
+              ></span>
+              <span
+                class="chart__bar chart__bar--forecast-out"
+                [style.height.%]="barHeight(point.expectedOutflows)"
+                title="Saídas previstas"
+              ></span>
+            </div>
+            <span class="chart__month">
+              {{ point.month }}
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="chart-legend">
+        <span>Entradas realizadas</span>
+        <span>Saídas realizadas</span>
+        <span>Entradas previstas</span>
+        <span>Saídas previstas</span>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h3>Sem dados para o gráfico</h3>
+        <p>
+          A evolução será apresentada quando
+          existirem movimentações no período.
+        </p>
+      </div>
+    }
+  </ui-card>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="panel-heading">
+      <div>
+        <h2>Movimentações financeiras</h2>
+        <p class="muted">
+          Histórico e programação de entradas e saídas
+        </p>
+      </div>
+
+      <div class="filter-field">
+        <label for="movement-status">Situação</label>
+        <select
+          #statusSelect
+          id="movement-status"
+          [value]="statusFilter()"
+          (change)="setStatus(statusSelect.value)"
+        >
+          <option value="ALL">Todas</option>
+          <option value="SETTLED">Realizadas</option>
+          <option value="SCHEDULED">Previstas</option>
+        </select>
+      </div>
+    </div>
+
+    @if (movements().length > 0) {
+      <div class="table-container">
+        <table class="movement-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th>Situação</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (movement of movements(); track movement.id) {
+              <tr>
+                <td>
+                  {{ displayDate(
+                    movement.settledDate ?? movement.expectedDate
+                  ) }}
+                </td>
+                <td>{{ movement.description }}</td>
+                <td>{{ movement.category }}</td>
+                <td>
+                  {{ movement.kind === 'INFLOW'
+                    ? 'Entrada' : 'Saída' }}
+                </td>
+                <td>
+                  {{ movement.status === 'SETTLED'
+                    ? 'Realizada' : 'Prevista' }}
+                </td>
+                <td>
+                  {{ money(movement.amount) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h3>Nenhuma movimentação encontrada</h3>
+        <p>
+          Não existem registros para os filtros
+          selecionados.
+        </p>
+      </div>
+    }
+  </ui-card>
+</section>

@@ -1,0 +1,240 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>Tributos e Obrigações</h1>
+    <p class="muted">Agenda de tributos, guias e entregas acessórias da AgroFly.</p>
+  </div>
+  <button class="primary-action" type="button" (click)="toggleForm()">
+    {{ showForm() ? 'Fechar formulário' : 'Nova obrigação' }}
+  </button>
+</section>
+
+<div class="preview-notice" role="note">
+  <strong>Somente pré-visualização do frontend</strong>
+  <p>Cadastros, baixas e conclusões são temporários e não representam obrigações reais da AgroFly.
+    Não calculamos alíquotas, regimes, impostos nem vencimentos legais: os valores e as datas são informados manualmente.
+    Valide as obrigações aplicáveis com a contabilidade. Nenhuma ação gera guia ou declaração fiscal.</p>
+</div>
+
+<section class="filters" aria-label="Período de competência">
+  <div class="field"><label for="tax-start">Competência inicial</label>
+    <input #startInput id="tax-start" type="month" [value]="periodStart()" /></div>
+  <div class="field"><label for="tax-end">Competência final</label>
+    <input #endInput id="tax-end" type="month" [value]="periodEnd()" /></div>
+  <button class="secondary-action" type="button" [disabled]="state() === 'loading'"
+    (click)="applyPeriod(startInput.value, endInput.value)">Aplicar período</button>
+</section>
+@if (validationError()) { <p class="error" role="alert">{{ validationError() }}</p> }
+@if (feedback()) { <p class="message" role="status">{{ feedback() }}</p> }
+
+@if (showForm()) {
+  <section class="section" aria-labelledby="tax-create-title">
+    <ui-card>
+      <h2 id="tax-create-title" class="section-title">Nova obrigação de teste</h2>
+      <form #taxForm="ngForm" class="entry-form" (ngSubmit)="saveDraft()">
+        <div class="field field--wide"><label for="tax-description">Descrição *</label>
+          <input id="tax-description" name="description" maxlength="120" required
+            [(ngModel)]="draft.description" placeholder="Identifique a obrigação, sem dados fictícios automáticos" /></div>
+        <div class="field"><label for="tax-kind">Natureza *</label>
+          <select id="tax-kind" name="kind" [(ngModel)]="draft.kind" (ngModelChange)="onKindChange()">
+            @for (kind of kinds; track kind.code) { <option [value]="kind.code">{{ kind.label }}</option> }
+          </select></div>
+        <div class="field"><label for="tax-category">Categoria *</label>
+          <select id="tax-category" name="category" [(ngModel)]="draft.category">
+            @for (option of categoriesForDraft; track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select></div>
+        <div class="field"><label for="tax-competence">Competência *</label>
+          <input id="tax-competence" name="competence" type="month" required [(ngModel)]="draft.competence" /></div>
+        <div class="field"><label for="tax-due">Vencimento informado *</label>
+          <input id="tax-due" name="dueDate" type="date" required [(ngModel)]="draft.dueDate" /></div>
+        @if (draft.kind === 'TAX') {
+          <div class="field"><label for="tax-amount">Valor informado (R$) *</label>
+            <input id="tax-amount" name="amount" type="number" min="0.01" step="0.01" required
+              [(ngModel)]="draft.amount" /></div>
+        }
+        <div class="field"><label for="tax-responsible">Responsável (opcional)</label>
+          <input id="tax-responsible" name="responsible" maxlength="100"
+            [(ngModel)]="draft.responsible" placeholder="Equipe ou responsável" /></div>
+        <div class="field"><label for="tax-reference">Referência (opcional)</label>
+          <input id="tax-reference" name="reference" maxlength="100"
+            [(ngModel)]="draft.reference" placeholder="Referência textual do documento" /></div>
+        <div class="field field--wide"><label for="tax-notes">Observações (opcional)</label>
+          <textarea id="tax-notes" name="notes" rows="3" maxlength="400" [(ngModel)]="draft.notes"></textarea></div>
+        <p class="form-note field--wide">O cadastro nesta tela não cria automaticamente contas a pagar,
+          despesas na DRE ou movimentos no Fluxo de Caixa; essa conciliação ficará para a integração futura.</p>
+        <div class="form-actions field--wide"><button class="primary-action" type="submit"
+          [disabled]="taxForm.invalid || saving()">Adicionar à prévia</button></div>
+      </form>
+    </ui-card>
+  </section>
+}
+
+<section class="section" aria-labelledby="tax-summary-title">
+  <div class="section-heading"><h2 id="tax-summary-title">Resumo do período</h2>
+    <span class="status-chip" role="status">{{ statusLabel() }}</span></div>
+  <div class="metrics">
+    <ui-card><div class="metric"><span>Tributos em aberto</span>
+      <strong>{{ money(summary().outstanding) }}</strong><small>Saldo ainda não baixado</small></div></ui-card>
+    <ui-card><div class="metric"><span>Tributos vencidos</span>
+      <strong>{{ money(summary().overdueAmount) }}</strong><small>{{ summary().overdueCount }} obrigação(ões) vencida(s)</small></div></ui-card>
+    <ui-card><div class="metric"><span>Vencem nos próximos 30 dias</span>
+      <strong>{{ money(summary().upcomingAmount) }}</strong><small>{{ summary().upcomingCount }} obrigação(ões) no prazo</small></div></ui-card>
+    <ui-card><div class="metric"><span>Obrigações concluídas</span>
+      <strong>{{ summary().completedCount }}</strong><small>{{ summary().pendingAccessories }} acessória(s) pendente(s)</small></div></ui-card>
+  </div>
+</section>
+
+<section class="section dashboard-grid">
+  <ui-card>
+    <div class="panel-heading"><h2>Próximos vencimentos</h2>
+      <p class="muted">Até 30 dias, considerando a competência selecionada</p></div>
+    @if (upcoming().length > 0) {
+      <div class="agenda">
+        @for (item of upcoming(); track item.id) {
+          <div class="agenda-row">
+            <div><strong>{{ item.description }}</strong>
+              <small>{{ kindText(item.kind) }} · {{ dateText(item.dueDate) }}</small></div>
+            <div class="agenda-side"><span class="due-pill">{{ daysLabel(item) }}</span>
+              @if (item.kind === 'TAX') { <strong>{{ money(remaining(item)) }}</strong> }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty"><h3>Nenhum vencimento próximo</h3>
+        <p>Cadastre obrigações de teste para visualizar a agenda.</p></div>
+    }
+  </ui-card>
+  <ui-card>
+    <div class="panel-heading"><h2>Entregas acessórias</h2>
+      <p class="muted">Acompanhamento sem cálculo de valores monetários</p></div>
+    <div class="accessory-summary">
+      <span>Pendentes</span><strong>{{ summary().pendingAccessories }}</strong>
+      <span>Concluídas no período</span><strong>{{ summary().completedAccessories }}</strong>
+    </div>
+    <p class="panel-note">Contagem por competência cadastrada, não pela data da entrega.</p>
+  </ui-card>
+</section>
+
+<section class="section">
+  <ui-card>
+    <div class="panel-heading"><h2>Obrigações cadastradas</h2>
+      <p class="muted">Filtre por natureza, categoria, situação e descrição.</p></div>
+    <div class="list-filters">
+      <div class="field field--search"><label for="fiscal-search">Pesquisar</label>
+        <input #searchInput id="fiscal-search" type="search" [value]="search()"
+          (input)="search.set(searchInput.value)" placeholder="Descrição, responsável ou referência" /></div>
+      <div class="field"><label for="fiscal-kind-filter">Natureza</label>
+        <select #kindInput id="fiscal-kind-filter" [value]="kindFilter()" (change)="setKindFilter(kindInput.value)">
+          <option value="ALL">Todas</option>
+          @for (kind of kinds; track kind.code) { <option [value]="kind.code">{{ kind.label }}</option> }
+        </select></div>
+      <div class="field"><label for="fiscal-category-filter">Categoria</label>
+        <select #categoryInput id="fiscal-category-filter" [value]="categoryFilter()"
+          (change)="setCategoryFilter(categoryInput.value)">
+          <option value="ALL">Todas</option>
+          @for (category of categories; track category.code) { <option [value]="category.code">{{ category.label }}</option> }
+        </select></div>
+      <div class="field"><label for="fiscal-status-filter">Situação</label>
+        <select #statusInput id="fiscal-status-filter" [value]="statusFilter()"
+          (change)="setStatusFilter(statusInput.value)">
+          <option value="ALL">Todas</option><option value="OPEN">Em aberto</option>
+          <option value="PARTIAL">Parcial</option><option value="OVERDUE">Vencido</option>
+          <option value="DONE">Concluído / pago</option>
+        </select></div>
+    </div>
+    @if (state() === 'error') {
+      <div class="empty"><h3>Não foi possível carregar as obrigações</h3>
+        <button class="secondary-action" type="button" (click)="load()">Tentar novamente</button></div>
+    } @else if (filtered().length > 0) {
+      <div class="table-wrap"><table class="fiscal-table">
+        <thead><tr><th>Vencimento</th><th>Descrição / competência</th><th>Natureza / categoria</th>
+          <th>Situação</th><th>Saldo</th><th>Ações</th></tr></thead>
+        <tbody>
+          @for (item of filtered(); track item.id) {
+            <tr>
+              <td>{{ dateText(item.dueDate) }}</td>
+              <td><strong>{{ item.description }}</strong><small>Competência: {{ item.competence }}</small>
+                @if (item.responsible) { <small>Responsável: {{ item.responsible }}</small> }
+                @if (item.reference) { <small>Ref.: {{ item.reference }}</small> }
+                @if (item.notes) { <small>{{ item.notes }}</small> }
+              </td>
+              <td>{{ kindText(item.kind) }}<small>{{ categoryText(item.category) }}</small></td>
+              <td><span class="status-pill" [class.status-pill--late]="status(item) === 'OVERDUE'"
+                [class.status-pill--done]="status(item) === 'DONE'">{{ statusText(item) }}</span>
+                @if (item.kind === 'TAX' && paid(item) > 0) {
+                  <small>Pago na prévia: {{ money(paid(item)) }}</small>
+                }
+                @if (item.completedAt) { <small>Concluída: {{ dateText(item.completedAt) }}</small> }
+              </td>
+              <td class="amount">{{ item.kind === 'TAX' ? money(remaining(item)) : '—' }}</td>
+              <td><div class="table-actions">
+                @if (item.kind === 'TAX' && remaining(item) > 0) {
+                  <button type="button" [disabled]="saving()" (click)="openPayment(item)">Registrar baixa</button>
+                }
+                @if (item.kind === 'ACCESSORY' && !item.completedAt) {
+                  <button type="button" [disabled]="saving()" (click)="openCompletion(item)">Concluir entrega</button>
+                }
+                @if (item.payments.length === 0 && !item.completedAt) {
+                  <button type="button" [disabled]="saving()" (click)="remove(item)">
+                    {{ pendingDelete() === item.id ? 'Confirmar exclusão' : 'Excluir' }}
+                  </button>
+                }
+              </div></td>
+            </tr>
+          }
+        </tbody>
+      </table></div>
+    } @else {
+      <div class="empty"><h3>Nenhum registro encontrado</h3>
+        <p>Adicione uma obrigação de teste ou ajuste os filtros.</p></div>
+    }
+  </ui-card>
+</section>
+
+@if (selectedForPayment(); as selected) {
+  <section class="section" aria-labelledby="fiscal-payment-title">
+    <ui-card>
+      <div class="panel-heading"><h2 id="fiscal-payment-title">Baixa simulada de tributo</h2>
+        <button class="text-action" type="button" (click)="selectedForPayment.set(null)">Fechar</button></div>
+      <p class="muted">{{ selected.description }} · Saldo: {{ money(remaining(selected)) }}</p>
+      <form #payForm="ngForm" class="inline-form" (ngSubmit)="recordPayment()">
+        <div class="field"><label for="fiscal-paid-amount">Valor pago *</label>
+          <input id="fiscal-paid-amount" name="paymentAmount" type="number" min="0.01"
+            [max]="remaining(selected)" step="0.01" required [(ngModel)]="paymentDraft.amount" /></div>
+        <div class="field"><label for="fiscal-paid-date">Data efetiva *</label>
+          <input id="fiscal-paid-date" name="paidAt" type="date" required [max]="today"
+            [(ngModel)]="paymentDraft.paidAt" /></div>
+        <div class="field"><label for="fiscal-proof">Referência do comprovante (opcional)</label>
+          <input id="fiscal-proof" name="proofReference" maxlength="100"
+            [(ngModel)]="paymentDraft.proofReference" /></div>
+        <button class="primary-action" type="submit" [disabled]="payForm.invalid || saving()">
+          Registrar baixa somente na prévia</button>
+      </form>
+      <p class="form-note">Nenhuma baixa é enviada a Contas a Pagar ou ao Fluxo de Caixa nesta fase.</p>
+    </ui-card>
+  </section>
+}
+
+@if (selectedForCompletion(); as selected) {
+  <section class="section" aria-labelledby="fiscal-completion-title">
+    <ui-card>
+      <div class="panel-heading"><h2 id="fiscal-completion-title">Concluir entrega acessória</h2>
+        <button class="text-action" type="button" (click)="selectedForCompletion.set(null)">Fechar</button></div>
+      <p class="muted">{{ selected.description }}</p>
+      <form #completeForm="ngForm" class="inline-form" (ngSubmit)="completeAccessory()">
+        <div class="field"><label for="fiscal-completion-date">Data da conclusão *</label>
+          <input id="fiscal-completion-date" name="completedAt" type="date" required [max]="today"
+            [(ngModel)]="completionDraft.completedAt" /></div>
+        <div class="field"><label for="fiscal-completion-ref">Referência / protocolo (opcional)</label>
+          <input id="fiscal-completion-ref" name="completionReference" maxlength="100"
+            [(ngModel)]="completionDraft.completionReference" /></div>
+        <button class="primary-action" type="submit" [disabled]="completeForm.invalid || saving()">
+          Marcar concluída na prévia</button>
+      </form>
+      <p class="form-note">Esta ação não transmite declarações ou documentos fiscais.</p>
+    </ui-card>
+  </section>
+}

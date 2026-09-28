@@ -1,0 +1,293 @@
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.page-heading,
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.page-heading {
+  margin-bottom: 24px;
+}
+
+.page-heading h1 {
+  margin: 4px 0 6px;
+}
+
+.page-heading .muted {
+  margin: 0;
+}
+
+.status-chip {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.filter-field {
+  display: grid;
+  gap: 6px;
+  min-width: 170px;
+}
+
+.filter-field label {
+  font-size: .75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.filter-field input,
+.filter-field select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.filter-error {
+  margin: 0 0 22px;
+  color: var(--danger);
+  font-size: .78rem;
+}
+
+.financial-section {
+  margin: 28px 0;
+}
+
+.section-title,
+.panel-heading h2 {
+  margin: 0 0 15px;
+  font-size: 1rem;
+}
+
+.metrics,
+.forecast-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.forecast-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.metric__label {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.metric__value {
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  color: var(--text);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.metric__value--small {
+  font-size: clamp(1.25rem, 1.7vw, 1.65rem);
+}
+
+.metric__note {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.panel-heading {
+  margin-bottom: 22px;
+}
+
+.panel-heading h2 {
+  margin-bottom: 4px;
+}
+
+.panel-heading p {
+  margin: 0;
+}
+
+/* Gráfico */
+
+.chart {
+  display: flex;
+  gap: 18px;
+  min-height: 240px;
+  overflow-x: auto;
+  padding: 20px 8px 0;
+}
+
+.chart__group {
+  min-width: 95px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.chart__bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  height: 190px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart__bar {
+  width: 16px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.chart__bar--in {
+  background: var(--primary);
+}
+
+.chart__bar--out {
+  background: var(--danger);
+}
+
+.chart__bar--forecast-in {
+  background: var(--primary);
+  opacity: .35;
+}
+
+.chart__bar--forecast-out {
+  background: var(--danger);
+  opacity: .35;
+}
+
+.chart__month {
+  text-align: center;
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.empty-state {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 25px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.empty-state p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--muted);
+  font-size: .77rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.movement-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.movement-table th,
+.movement-table td {
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-size: .78rem;
+}
+
+.movement-table th {
+  color: var(--muted);
+  font-size: .71rem;
+}
+
+.movement-table th:last-child,
+.movement-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.feedback {
+  padding: 12px 0;
+}
+
+.feedback h2 {
+  margin-top: 0;
+}
+
+.feedback ui-button {
+  display: inline-block;
+  margin-top: 15px;
+}
+
+@include bp.tablet {
+  .metrics,
+  .forecast-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include bp.mobile {
+  .metrics,
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .filter-field {
+    min-width: 0;
+  }
+}

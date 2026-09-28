@@ -1,0 +1,146 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <h1>DRE Gerencial</h1>
+    <p class="muted">
+      Demonstração dos resultados por competência.
+    </p>
+  </div>
+
+  <div class="dre-toolbar">
+    <label for="dre-competence">Competência</label>
+
+    <input
+      #monthInput
+      id="dre-competence"
+      type="month"
+      [value]="competence()"
+      [disabled]="state() === 'loading'"
+    />
+
+    <ui-button
+      variant="secondary"
+      size="sm"
+      [loading]="state() === 'loading'"
+      (pressed)="setCompetence(monthInput.value)"
+    >
+      Aplicar
+    </ui-button>
+  </div>
+</section>
+
+<div class="dre-status" role="status">
+  {{ statusLabel() }}
+</div>
+
+@if (state() === 'unavailable') {
+  <section class="dre-feedback">
+    <ui-card>
+      <h2>Não foi possível carregar a DRE</h2>
+      <p class="muted">
+        A API financeira está indisponível
+        ou ainda não foi implementada.
+      </p>
+
+      <ui-button
+        variant="secondary"
+        (pressed)="load()"
+      >
+        Tentar novamente
+      </ui-button>
+    </ui-card>
+  </section>
+}
+
+<section class="financial-section">
+  <h2 class="section-title">Indicadores do resultado</h2>
+
+  <div class="metrics">
+    @for (item of indicators(); track item.code) {
+      <ui-card>
+        <div class="metric">
+          <span class="metric__label">
+            {{ item.label }}
+          </span>
+
+          <strong class="metric__value">
+            {{ item.value }}
+          </strong>
+        </div>
+      </ui-card>
+    }
+  </div>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="report-heading">
+      <div>
+        <h2>Demonstrativo de resultado</h2>
+        <p class="muted">
+          Valores por competência
+        </p>
+      </div>
+      <span class="report-badge">Gerencial</span>
+    </div>
+
+    <div class="table-container">
+      <table class="dre-table">
+        <thead>
+          <tr>
+            <th scope="col">Descrição</th>
+            <th scope="col">Valor</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (row of rows(); track row.code) {
+            <tr
+              [class]="
+                'dre-table__row dre-table__row--'
+                + row.type
+              "
+            >
+              <th scope="row">{{ row.label }}</th>
+              <td>{{ row.value }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (state() === 'empty') {
+      <p class="report-note">
+        Não existem lançamentos nesta competência.
+      </p>
+    }
+  </ui-card>
+</section>
+
+<section class="financial-section">
+  <ui-card>
+    <div class="report-heading">
+      <div>
+        <h2>Detalhamento dos custos</h2>
+        <p class="muted">
+          Custos operacionais por categoria
+        </p>
+      </div>
+    </div>
+
+    <div class="cost-categories">
+      @for (cost of costs(); track cost.code) {
+        <div class="cost-category">
+          <span>{{ cost.label }}</span>
+          <strong>{{ cost.value }}</strong>
+        </div>
+      }
+    </div>
+
+    <p class="report-note">
+      Combustível fornecido gratuitamente pela
+      fazenda não gera automaticamente uma
+      despesa para a AgroFly.
+    </p>
+  </ui-card>
+</section>
