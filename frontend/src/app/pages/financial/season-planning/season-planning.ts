@@ -7,9 +7,16 @@ import {
 } from '@angular/core';
 
 import {
+  FinancialScenario
+} from '../../../core/financial/financial-scenario.model';
+
+import {
+  FinancialScenarioService
+} from '../../../core/financial/financial-scenario.service';
+
+import {
   SeasonMonth,
-  SeasonMonthAllocation,
-  SeasonPlanningAssumptions
+  SeasonMonthAllocation
 } from '../../../core/financial/financial-season-planning.model';
 
 import {
@@ -26,24 +33,25 @@ import {
 })
 export class SeasonPlanning {
 
-  private readonly service =
+  private readonly seasonService =
     inject(FinancialSeasonPlanningService);
 
-  readonly assumptions =
-    signal<SeasonPlanningAssumptions>({
-      ...this.service.initialAssumptions
-    });
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
+
+  readonly scenario =
+    this.financialScenario.scenario;
 
   readonly allocation =
     signal<SeasonMonthAllocation[]>(
-      this.service.initialAllocation.map(
+      this.seasonService.initialAllocation.map(
         item => ({ ...item })
       )
     );
 
   readonly projection = computed(() =>
-    this.service.calculateSeason(
-      this.assumptions(),
+    this.seasonService.calculateSeason(
+      this.scenario(),
       this.allocation()
     )
   );
@@ -112,8 +120,11 @@ export class SeasonPlanning {
       );
     });
 
+  readonly variableCostPerHa =
+    this.financialScenario.variableCostPerHa;
+
   updateAssumption(
-    field: keyof SeasonPlanningAssumptions,
+    field: keyof FinancialScenario,
     value: string
   ): void {
 
@@ -129,11 +140,9 @@ export class SeasonPlanning {
       return;
     }
 
-    this.assumptions.update(
-      current => ({
-        ...current,
-        [field]: parsed
-      })
+    this.financialScenario.updateField(
+      field,
+      parsed
     );
   }
 
@@ -157,25 +166,24 @@ export class SeasonPlanning {
 
     this.allocation.update(
       current =>
-        current.map(item =>
-          item.month === month
-            ? {
-                ...item,
-                percentage: parsed
-              }
-            : item
+        current.map(
+          item =>
+            item.month === month
+              ? {
+                  ...item,
+                  percentage: parsed
+                }
+              : item
         )
     );
   }
 
   resetScenario(): void {
 
-    this.assumptions.set({
-      ...this.service.initialAssumptions
-    });
+    this.financialScenario.reset();
 
     this.allocation.set(
-      this.service.initialAllocation.map(
+      this.seasonService.initialAllocation.map(
         item => ({ ...item })
       )
     );

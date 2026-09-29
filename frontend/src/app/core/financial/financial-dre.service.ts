@@ -1,37 +1,76 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import {
+  inject,
+  Injectable
+} from '@angular/core';
+
+import {
+  Observable,
+  of
+} from 'rxjs';
 
 import {
   FinancialDreDto
 } from './financial-dre.model';
+
+import {
+  FinancialScenarioService
+} from './financial-scenario.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FinancialDreService {
 
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
+
   getDre(
     competence: string
   ): Observable<FinancialDreDto> {
 
-    const grossRevenue = 1_960_000;
+    const scenario =
+      this.financialScenario.scenario();
 
-    const revenueTaxes = -117_600;
+    const hectares =
+      scenario.projectedHectares;
+
+    const grossRevenue =
+      hectares
+      * scenario.pricePerHa;
+
+    const revenueTaxes =
+      -(
+        hectares
+        * scenario.taxesPerHa
+      );
 
     const netRevenue =
-      grossRevenue + revenueTaxes;
+      grossRevenue
+      + revenueTaxes;
 
-    const pilotCommission = -313_600;
+    const pilotCommission =
+      -(
+        hectares
+        * scenario.pilotCommissionPerHa
+      );
 
-    /*
-     * Combustível só representa despesa financeira
-     * quando for responsabilidade da AgroFly.
-     */
-    const fuelCosts = 0;
+    const fuelCosts =
+      -(
+        hectares
+        * scenario.fuelCostPerHa
+      );
 
-    const maintenanceReserve = -169_254;
+    const maintenanceReserve =
+      -(
+        hectares
+        * scenario.maintenanceReservePerHa
+      );
 
-    const otherVariableCosts = -18_375;
+    const otherVariableCosts =
+      -(
+        hectares
+        * scenario.otherVariableCostPerHa
+      );
 
     const contributionMargin =
       netRevenue
@@ -40,27 +79,33 @@ export class FinancialDreService {
       + maintenanceReserve
       + otherVariableCosts;
 
-    const fixedCosts = -416_000;
+    const fixedCosts =
+      -scenario.operatingFixedCostsAnnual;
 
     const ebitda =
-      contributionMargin + fixedCosts;
+      contributionMargin
+      + fixedCosts;
 
-    const depreciation = -42_000;
+    const depreciation =
+      -scenario.depreciationAnnual;
 
     const ebit =
-      ebitda + depreciation;
+      ebitda
+      + depreciation;
 
-    const interest = 0;
+    const interest =
+      -scenario.interestAnnual;
 
     const netProfit =
-      ebit + interest;
+      ebit
+      + interest;
 
     return of({
       status: 'READY',
 
       competence,
 
-      hectares: 49_000,
+      hectares,
 
       values: {
         grossRevenue,

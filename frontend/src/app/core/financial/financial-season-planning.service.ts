@@ -1,31 +1,18 @@
 import { Injectable } from '@angular/core';
 
 import {
+  FinancialScenario
+} from './financial-scenario.model';
+
+import {
   SeasonMonthAllocation,
-  SeasonMonthProjection,
-  SeasonPlanningAssumptions
+  SeasonMonthProjection
 } from './financial-season-planning.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FinancialSeasonPlanningService {
-
-  readonly initialAssumptions:
-    SeasonPlanningAssumptions = {
-
-      projectedHectares: 49_000,
-
-      pricePerHa: 40,
-
-      productivityHaPerHour: 120,
-
-      pilotCommissionPerHa: 6.40,
-
-      taxesPerHa: 2.40,
-
-      variableCostPerHa: 3.83
-    };
 
   readonly initialAllocation:
     SeasonMonthAllocation[] = [
@@ -47,36 +34,41 @@ export class FinancialSeasonPlanningService {
     ];
 
   calculateMonth(
-    assumptions: SeasonPlanningAssumptions,
+    scenario: FinancialScenario,
     allocation: SeasonMonthAllocation
   ): SeasonMonthProjection {
 
     const hectares =
-      assumptions.projectedHectares
+      scenario.projectedHectares
       * allocation.percentage
       / 100;
 
     const flightHours =
-      assumptions.productivityHaPerHour > 0
+      scenario.productivityHaPerHour > 0
         ? hectares
-          / assumptions.productivityHaPerHour
+          / scenario.productivityHaPerHour
         : 0;
 
     const grossRevenue =
       hectares
-      * assumptions.pricePerHa;
+      * scenario.pricePerHa;
 
     const pilotCommission =
       hectares
-      * assumptions.pilotCommissionPerHa;
+      * scenario.pilotCommissionPerHa;
 
     const taxes =
       hectares
-      * assumptions.taxesPerHa;
+      * scenario.taxesPerHa;
+
+    const variableCostPerHa =
+      scenario.fuelCostPerHa
+      + scenario.maintenanceReservePerHa
+      + scenario.otherVariableCostPerHa;
 
     const variableCosts =
       hectares
-      * assumptions.variableCostPerHa;
+      * variableCostPerHa;
 
     const contributionMargin =
       grossRevenue
@@ -86,20 +78,14 @@ export class FinancialSeasonPlanningService {
 
     return {
       month: allocation.month,
-
-      percentage:
-        allocation.percentage,
+      percentage: allocation.percentage,
 
       hectares,
-
       flightHours,
 
       grossRevenue,
-
       pilotCommission,
-
       taxes,
-
       variableCosts,
 
       contributionMargin
@@ -107,15 +93,16 @@ export class FinancialSeasonPlanningService {
   }
 
   calculateSeason(
-    assumptions: SeasonPlanningAssumptions,
+    scenario: FinancialScenario,
     allocation: SeasonMonthAllocation[]
   ): SeasonMonthProjection[] {
 
-    return allocation.map(item =>
-      this.calculateMonth(
-        assumptions,
-        item
-      )
+    return allocation.map(
+      item =>
+        this.calculateMonth(
+          scenario,
+          item
+        )
     );
   }
 }

@@ -12,23 +12,8 @@ export type SeasonMonth =
   | 11
   | 12;
 
-export interface SeasonPlanningAssumptions {
-  projectedHectares: number;
-
-  pricePerHa: number;
-
-  productivityHaPerHour: number;
-
-  pilotCommissionPerHa: number;
-
-  taxesPerHa: number;
-
-  variableCostPerHa: number;
-}
-
 export interface SeasonMonthAllocation {
   month: SeasonMonth;
-
   percentage: number;
 }
 

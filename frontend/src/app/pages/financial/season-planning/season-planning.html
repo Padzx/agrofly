@@ -112,7 +112,7 @@
               #projectedHectares
               type="number"
               min="0"
-              [value]="assumptions().projectedHectares"
+              [value]="scenario().projectedHectares"
               (input)="
                 updateAssumption(
                   'projectedHectares',
@@ -138,7 +138,7 @@
               type="number"
               min="0"
               step="0.01"
-              [value]="assumptions().pricePerHa"
+              [value]="scenario().pricePerHa"
               (input)="
                 updateAssumption(
                   'pricePerHa',
@@ -159,7 +159,7 @@
               #productivity
               type="number"
               min="0"
-              [value]="assumptions().productivityHaPerHour"
+              [value]="scenario().productivityHaPerHour"
               (input)="
                 updateAssumption(
                   'productivityHaPerHour',
@@ -185,7 +185,7 @@
               type="number"
               min="0"
               step="0.01"
-              [value]="assumptions().pilotCommissionPerHa"
+              [value]="scenario().pilotCommissionPerHa"
               (input)="
                 updateAssumption(
                   'pilotCommissionPerHa',
@@ -211,7 +211,7 @@
               type="number"
               min="0"
               step="0.01"
-              [value]="assumptions().taxesPerHa"
+              [value]="scenario().taxesPerHa"
               (input)="
                 updateAssumption(
                   'taxesPerHa',
@@ -226,22 +226,74 @@
         </label>
 
         <label>
-          <span>Custos variáveis</span>
+          <span>Combustível AgroFly</span>
 
           <div class="input-group">
 
             <small>R$</small>
 
             <input
-              #variableCost
+              #fuelCost
               type="number"
               min="0"
               step="0.01"
-              [value]="assumptions().variableCostPerHa"
+              [value]="scenario().fuelCostPerHa"
               (input)="
                 updateAssumption(
-                  'variableCostPerHa',
-                  variableCost.value
+                  'fuelCostPerHa',
+                  fuelCost.value
+                )
+              "
+            />
+
+            <small>/ha</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Reserva de manutenção</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #maintenanceCost
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().maintenanceReservePerHa"
+              (input)="
+                updateAssumption(
+                  'maintenanceReservePerHa',
+                  maintenanceCost.value
+                )
+              "
+            />
+
+            <small>/ha</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Outros custos variáveis</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #otherVariableCost
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().otherVariableCostPerHa"
+              (input)="
+                updateAssumption(
+                  'otherVariableCostPerHa',
+                  otherVariableCost.value
                 )
               "
             />
