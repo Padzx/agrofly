@@ -71,6 +71,10 @@ export class Sidebar {
               route: '/financeiro/ponto-equilibrio'
             },
             {
+              label: 'Planejamento da Safra',
+              route: '/financeiro/planejamento-safra'
+            },
+            {
               label: 'Contas a Pagar e Receber',
               route: '/financeiro/contas-pagar-receber'
             },

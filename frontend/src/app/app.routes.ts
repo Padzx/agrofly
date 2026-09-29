@@ -68,6 +68,14 @@ export const routes: Routes = [
       },
 
       {
+        path: 'financeiro/planejamento-safra',
+        loadComponent: () =>
+          import('./pages/financial/season-planning/season-planning')
+            .then(m => m.SeasonPlanning),
+        title: 'Planejamento da Safra | AgroFly'
+      },
+
+      {
         path: 'financeiro/contas-pagar-receber',
         component: FinancialAccounts,
         title: 'Contas a Pagar e Receber | AgroFly'

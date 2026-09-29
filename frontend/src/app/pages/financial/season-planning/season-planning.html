@@ -1,0 +1,500 @@
+<section class="season-page">
+
+  <header class="page-heading">
+
+    <div>
+      <p class="eyebrow">
+        INTELIGÊNCIA FINANCEIRA
+      </p>
+
+      <h1>
+        Planejamento da Safra
+      </h1>
+
+      <p class="muted">
+        Distribua a produção ao longo do ano
+        e acompanhe o impacto em hectares,
+        horas de voo, receita e margem.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="reset-button"
+      (click)="resetScenario()"
+    >
+      Restaurar cenário
+    </button>
+
+  </header>
+
+  <section class="metrics">
+
+    <article class="metric-card">
+      <span>Safra projetada</span>
+
+      <strong>
+        {{ number(totalHectares()) }} ha
+      </strong>
+
+      <small>
+        Volume distribuído
+      </small>
+    </article>
+
+    <article class="metric-card">
+      <span>Horas previstas</span>
+
+      <strong>
+        {{ number(totalFlightHours(), 1) }} h
+      </strong>
+
+      <small>
+        Operação estimada
+      </small>
+    </article>
+
+    <article class="metric-card">
+      <span>Receita projetada</span>
+
+      <strong>
+        {{ currency(totalRevenue()) }}
+      </strong>
+
+      <small>
+        Receita bruta
+      </small>
+    </article>
+
+    <article class="metric-card highlight">
+      <span>Margem de contribuição</span>
+
+      <strong>
+        {{ currency(contributionMarginPerHa()) }}/ha
+      </strong>
+
+      <small>
+        Média da safra
+      </small>
+    </article>
+
+  </section>
+
+  <div class="planning-grid">
+
+    <section class="panel">
+
+      <header class="panel-heading">
+        <div>
+          <p class="eyebrow">
+            PREMISSAS
+          </p>
+
+          <h2>
+            Cenário econômico
+          </h2>
+
+          <p class="muted">
+            Valores utilizados para calcular
+            a projeção anual.
+          </p>
+        </div>
+      </header>
+
+      <div class="assumptions-grid">
+
+        <label>
+          <span>Hectares projetados</span>
+
+          <div class="input-group">
+
+            <input
+              #projectedHectares
+              type="number"
+              min="0"
+              [value]="assumptions().projectedHectares"
+              (input)="
+                updateAssumption(
+                  'projectedHectares',
+                  projectedHectares.value
+                )
+              "
+            />
+
+            <small>ha</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Preço médio por hectare</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #pricePerHa
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="assumptions().pricePerHa"
+              (input)="
+                updateAssumption(
+                  'pricePerHa',
+                  pricePerHa.value
+                )
+              "
+            />
+
+          </div>
+        </label>
+
+        <label>
+          <span>Produtividade média</span>
+
+          <div class="input-group">
+
+            <input
+              #productivity
+              type="number"
+              min="0"
+              [value]="assumptions().productivityHaPerHour"
+              (input)="
+                updateAssumption(
+                  'productivityHaPerHour',
+                  productivity.value
+                )
+              "
+            />
+
+            <small>ha/h</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Comissão piloto</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #pilotCommission
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="assumptions().pilotCommissionPerHa"
+              (input)="
+                updateAssumption(
+                  'pilotCommissionPerHa',
+                  pilotCommission.value
+                )
+              "
+            />
+
+            <small>/ha</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Impostos</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #taxes
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="assumptions().taxesPerHa"
+              (input)="
+                updateAssumption(
+                  'taxesPerHa',
+                  taxes.value
+                )
+              "
+            />
+
+            <small>/ha</small>
+
+          </div>
+        </label>
+
+        <label>
+          <span>Custos variáveis</span>
+
+          <div class="input-group">
+
+            <small>R$</small>
+
+            <input
+              #variableCost
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="assumptions().variableCostPerHa"
+              (input)="
+                updateAssumption(
+                  'variableCostPerHa',
+                  variableCost.value
+                )
+              "
+            />
+
+            <small>/ha</small>
+
+          </div>
+        </label>
+
+      </div>
+
+    </section>
+
+    <section
+      class="panel allocation-status"
+      [class.invalid]="!allocationBalanced()"
+    >
+
+      <p class="eyebrow">
+        DISTRIBUIÇÃO
+      </p>
+
+      <span>
+        Total alocado
+      </span>
+
+      <strong>
+        {{ number(allocationTotal(), 1) }}%
+      </strong>
+
+      @if (allocationBalanced()) {
+
+        <div class="status success">
+          Distribuição completa
+        </div>
+
+      } @else {
+
+        <div class="status warning">
+          Ajuste até totalizar 100%
+        </div>
+
+      }
+
+      <div class="allocation-track">
+
+        <span
+          [style.width.%]="
+            allocationTotal() > 100
+              ? 100
+              : allocationTotal()
+          "
+        ></span>
+
+      </div>
+
+      <p class="muted">
+        Os cálculos mensais utilizam
+        exatamente os percentuais informados.
+      </p>
+
+    </section>
+
+  </div>
+
+  <section class="panel">
+
+    <header class="panel-heading">
+
+      <div>
+        <p class="eyebrow">
+          SAZONALIDADE
+        </p>
+
+        <h2>
+          Distribuição mensal
+        </h2>
+
+        <p class="muted">
+          Informe quanto da safra será executado
+          em cada mês.
+        </p>
+      </div>
+
+    </header>
+
+    <div class="month-grid">
+
+      @for (
+        item of allocation();
+        track item.month
+      ) {
+
+        <article
+          class="month-card"
+          [class.active]="item.percentage > 0"
+        >
+
+          <div class="month-heading">
+
+            <div>
+              <strong>
+                {{ monthShort(item.month) }}
+              </strong>
+
+              <span>
+                {{ monthName(item.month) }}
+              </span>
+            </div>
+
+            <div class="percentage-input">
+
+              <input
+                #percentageInput
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                [value]="item.percentage"
+                (input)="
+                  updateMonthPercentage(
+                    item.month,
+                    percentageInput.value
+                  )
+                "
+              />
+
+              <span>%</span>
+
+            </div>
+
+          </div>
+
+          <div class="month-bar">
+
+            <span
+              [style.width.%]="item.percentage"
+            ></span>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  </section>
+
+  <section class="panel">
+
+    <header class="panel-heading">
+
+      <div>
+        <p class="eyebrow">
+          PROJEÇÃO OPERACIONAL E FINANCEIRA
+        </p>
+
+        <h2>
+          Resultado mensal da safra
+        </h2>
+      </div>
+
+    </header>
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Participação</th>
+            <th>Hectares</th>
+            <th>Horas</th>
+            <th>Receita</th>
+            <th>Margem contribuição</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (
+            month of projection();
+            track month.month
+          ) {
+
+            <tr>
+
+              <th>
+                {{ monthShort(month.month) }}
+              </th>
+
+              <td>
+                {{ number(month.percentage, 1) }}%
+              </td>
+
+              <td>
+                {{ number(month.hectares) }} ha
+              </td>
+
+              <td>
+                {{ number(month.flightHours, 1) }} h
+              </td>
+
+              <td>
+                {{ currency(month.grossRevenue) }}
+              </td>
+
+              <td class="positive-value">
+                {{ currency(month.contributionMargin) }}
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+        <tfoot>
+
+          <tr>
+
+            <th>Total</th>
+
+            <td>
+              {{ number(allocationTotal(), 1) }}%
+            </td>
+
+            <td>
+              {{ number(totalHectares()) }} ha
+            </td>
+
+            <td>
+              {{ number(totalFlightHours(), 1) }} h
+            </td>
+
+            <td>
+              {{ currency(totalRevenue()) }}
+            </td>
+
+            <td>
+              {{ currency(totalContributionMargin()) }}
+            </td>
+
+          </tr>
+
+        </tfoot>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</section>
