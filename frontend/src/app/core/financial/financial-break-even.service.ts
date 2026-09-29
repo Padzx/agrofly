@@ -26,7 +26,7 @@ export class FinancialBreakEvenService {
     const contributionMarginPerHa =
       scenario.pricePerHa
       - scenario.pilotCommissionPerHa
-      - scenario.taxesPerHa
+      - (scenario.pricePerHa * scenario.revenueTaxRate)
       - variableCostPerHa;
 
     /*
@@ -87,7 +87,7 @@ export class FinancialBreakEvenService {
     const contributionMarginPerHa =
       scenario.pricePerHa
       - scenario.pilotCommissionPerHa
-      - scenario.taxesPerHa
+      - (scenario.pricePerHa * scenario.revenueTaxRate)
       - variableCostPerHa;
 
     const fixedCostsAnnual =

@@ -9,12 +9,199 @@
   </button>
 </section>
 
-<div class="preview-notice" role="note">
-  <strong>Somente pré-visualização do frontend</strong>
-  <p>Cadastros, baixas e conclusões são temporários e não representam obrigações reais da AgroFly.
-    Não calculamos alíquotas, regimes, impostos nem vencimentos legais: os valores e as datas são informados manualmente.
-    Valide as obrigações aplicáveis com a contabilidade. Nenhuma ação gera guia ou declaração fiscal.</p>
-</div>
+<section class="section tax-intelligence">
+
+  <div class="section-heading">
+
+    <div>
+      <p class="eyebrow">
+        INTELIGÊNCIA TRIBUTÁRIA
+      </p>
+
+      <h2>
+        Premissas sobre faturamento
+      </h2>
+
+      <p class="muted">
+        Esta alíquota alimenta as projeções da
+        DRE, Planejamento da Safra,
+        Ponto de Equilíbrio e Fluxo de Caixa.
+      </p>
+    </div>
+
+    <span class="status-chip">
+      Cenário compartilhado
+    </span>
+
+  </div>
+
+  <div class="metrics">
+
+    <ui-card>
+      <div class="metric">
+
+        <span>
+          Alíquota sobre receita
+        </span>
+
+        <strong>
+          {{ taxRatePercent() }}%
+        </strong>
+
+        <small>
+          Premissa efetiva da projeção
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span>
+          Imposto equivalente
+        </span>
+
+        <strong>
+          {{ money(taxPerHa()) }}/ha
+        </strong>
+
+        <small>
+          Com preço atual de
+          {{ money(scenario().pricePerHa) }}/ha
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span>
+          Tributos projetados
+        </span>
+
+        <strong>
+          {{ money(projectedRevenueTaxes()) }}
+        </strong>
+
+        <small>
+          Sobre a receita projetada da safra
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span>
+          Receita líquida projetada
+        </span>
+
+        <strong>
+          {{ money(projectedNetRevenue()) }}
+        </strong>
+
+        <small>
+          Receita bruta menos tributos
+        </small>
+
+      </div>
+    </ui-card>
+
+  </div>
+
+  <ui-card>
+
+    <div class="panel-heading">
+      <div>
+        <h2>
+          Premissa tributária
+        </h2>
+
+        <p class="muted">
+          Ajuste somente a alíquota utilizada
+          nas projeções financeiras.
+        </p>
+      </div>
+    </div>
+
+    <div class="entry-form">
+
+      <div class="field">
+
+        <label for="revenue-tax-rate">
+          Alíquota sobre receita (%)
+        </label>
+
+        <input
+          #taxRate
+          id="revenue-tax-rate"
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          [value]="taxRatePercent()"
+          (input)="
+            updateRevenueTaxRate(
+              taxRate.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Receita bruta projetada
+        </label>
+
+        <input
+          type="text"
+          [value]="money(projectedGrossRevenue())"
+          readonly
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Imposto por hectare
+        </label>
+
+        <input
+          type="text"
+          [value]="money(taxPerHa())"
+          readonly
+        />
+
+      </div>
+
+    </div>
+
+    <div class="preview-notice" role="note">
+
+      <strong>
+        Projeção x obrigação fiscal
+      </strong>
+
+      <p>
+        A alíquota acima é uma premissa de
+        planejamento financeiro. As guias,
+        vencimentos, pagamentos e obrigações
+        cadastradas abaixo continuam sendo
+        registros manuais nesta fase do frontend.
+        Nenhuma ação gera guia ou declaração fiscal.
+      </p>
+
+    </div>
+
+  </ui-card>
+
+</section>
 
 <section class="filters" aria-label="Período de competência">
   <div class="field"><label for="tax-start">Competência inicial</label>

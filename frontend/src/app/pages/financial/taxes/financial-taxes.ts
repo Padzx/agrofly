@@ -12,6 +12,10 @@ import {
 } from '../../../core/financial/financial-taxes.model';
 import { FinancialTaxesService } from '../../../core/financial/financial-taxes.service';
 
+import {
+  FinancialScenarioService
+} from '../../../core/financial/financial-scenario.service';
+
 type ViewState = 'loading' | 'ready' | 'empty' | 'error';
 type KindFilter = FiscalKind | 'ALL';
 type StatusFilter = FiscalDisplayStatus | 'ALL';
@@ -30,6 +34,10 @@ interface FiscalCategoryOption {
 })
 export class FinancialTaxes implements OnInit {
   private readonly service = inject(FinancialTaxesService);
+
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
+
   private readonly destroyRef = inject(DestroyRef);
   private request?: Subscription;
 
@@ -72,6 +80,39 @@ export class FinancialTaxes implements OnInit {
   };
 
   readonly records = computed(() => this.snapshot()?.obligations ?? []);
+
+
+  readonly scenario =
+    this.financialScenario.scenario;
+
+  readonly taxRatePercent =
+    computed(() =>
+      this.scenario().revenueTaxRate * 100
+    );
+
+  readonly taxPerHa =
+    computed(() =>
+      this.scenario().pricePerHa
+      * this.scenario().revenueTaxRate
+    );
+
+  readonly projectedGrossRevenue =
+    computed(() =>
+      this.scenario().projectedHectares
+      * this.scenario().pricePerHa
+    );
+
+  readonly projectedRevenueTaxes =
+    computed(() =>
+      this.projectedGrossRevenue()
+      * this.scenario().revenueTaxRate
+    );
+
+  readonly projectedNetRevenue =
+    computed(() =>
+      this.projectedGrossRevenue()
+      - this.projectedRevenueTaxes()
+    );
   readonly summary = computed(() => {
     const records = this.records();
     const open = records.filter(item => fiscalStatus(item, this.today) !== 'DONE');
@@ -290,6 +331,29 @@ export class FinancialTaxes implements OnInit {
           this.feedback.set('Não é possível excluir registros já concluídos ou com baixas.');
         },
       });
+  }
+
+  updateRevenueTaxRate(
+    value: string
+  ): void {
+
+    const percent =
+      Number(
+        value.replace(',', '.')
+      );
+
+    if (
+      Number.isNaN(percent)
+      || percent < 0
+      || percent > 100
+    ) {
+      return;
+    }
+
+    this.financialScenario.updateField(
+      'revenueTaxRate',
+      percent / 100
+    );
   }
 
   kindText(kind: FiscalKind): string {

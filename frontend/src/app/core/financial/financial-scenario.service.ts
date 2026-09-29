@@ -24,7 +24,7 @@ export class FinancialScenarioService {
 
       pilotCommissionPerHa: 6.40,
 
-      taxesPerHa: 2.40,
+      revenueTaxRate: 0.06,
 
       fuelCostPerHa: 0,
 
@@ -80,7 +80,7 @@ export class FinancialScenarioService {
 
       return (
         scenario.pricePerHa
-        - scenario.taxesPerHa
+        - (scenario.pricePerHa * scenario.revenueTaxRate)
         - scenario.pilotCommissionPerHa
         - this.variableCostPerHa()
       );

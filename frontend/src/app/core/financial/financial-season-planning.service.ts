@@ -59,7 +59,7 @@ export class FinancialSeasonPlanningService {
 
     const taxes =
       hectares
-      * scenario.taxesPerHa;
+      * (scenario.pricePerHa * scenario.revenueTaxRate);
 
     const variableCostPerHa =
       scenario.fuelCostPerHa

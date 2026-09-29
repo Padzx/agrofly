@@ -7,7 +7,13 @@ export interface FinancialScenario {
 
   pilotCommissionPerHa: number;
 
-  taxesPerHa: number;
+  /*
+   * Alíquota efetiva utilizada nas projeções
+   * sobre a receita bruta.
+   *
+   * Ex.: 0.06 = 6%
+   */
+  revenueTaxRate: number;
 
   /*
    * Combustível representa custo financeiro

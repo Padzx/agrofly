@@ -221,26 +221,29 @@
 
         <label>
           <span>
-            Impostos por ha
+            Tributos sobre receita
           </span>
 
           <div class="input-wrapper">
-            <span>R$</span>
 
             <input
-              #taxes
               type="number"
-              min="0"
-              step="0.01"
-              [value]="scenario().taxesPerHa"
-              (input)="
-                updateField(
-                  'taxesPerHa',
-                  taxes.value
-                )
-              "
+              [value]="scenario().revenueTaxRate * 100"
+              readonly
             />
+
+            <span>%</span>
+
           </div>
+
+          <small>
+            Equivale a R$
+            {{
+              scenario().pricePerHa
+              * scenario().revenueTaxRate
+            }}
+            por hectare
+          </small>
         </label>
 
         <label>

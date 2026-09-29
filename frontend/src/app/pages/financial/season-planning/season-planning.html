@@ -200,29 +200,30 @@
         </label>
 
         <label>
-          <span>Impostos</span>
+          <span>
+            Tributos sobre receita
+          </span>
 
           <div class="input-group">
 
-            <small>R$</small>
-
             <input
-              #taxes
               type="number"
-              min="0"
-              step="0.01"
-              [value]="scenario().taxesPerHa"
-              (input)="
-                updateAssumption(
-                  'taxesPerHa',
-                  taxes.value
-                )
-              "
+              [value]="scenario().revenueTaxRate * 100"
+              readonly
             />
 
-            <small>/ha</small>
+            <small>%</small>
 
           </div>
+
+          <small class="field-note">
+            Equivale a R$
+            {{
+              scenario().pricePerHa
+              * scenario().revenueTaxRate
+            }}
+            /ha no cenário atual
+          </small>
         </label>
 
         <label>

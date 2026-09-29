@@ -40,8 +40,8 @@ export class FinancialDreService {
 
     const revenueTaxes =
       -(
-        hectares
-        * scenario.taxesPerHa
+        grossRevenue
+        * scenario.revenueTaxRate
       );
 
     const netRevenue =
