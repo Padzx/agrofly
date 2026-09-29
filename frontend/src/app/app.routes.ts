@@ -60,6 +60,14 @@ export const routes: Routes = [
       },
 
       {
+        path: 'financeiro/ponto-equilibrio',
+        loadComponent: () =>
+          import('./pages/financial/break-even/break-even')
+            .then(m => m.FinancialBreakEven),
+        title: 'Ponto de Equilíbrio | AgroFly'
+      },
+
+      {
         path: 'financeiro/contas-pagar-receber',
         component: FinancialAccounts,
         title: 'Contas a Pagar e Receber | AgroFly'

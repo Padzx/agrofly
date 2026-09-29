@@ -1,0 +1,505 @@
+<section class="break-even-page">
+
+  <header class="page-header">
+
+    <div>
+      <span class="eyebrow">
+        INTELIGÊNCIA FINANCEIRA
+      </span>
+
+      <h1>Ponto de Equilíbrio</h1>
+
+      <p>
+        Quantos hectares e horas de voo são
+        necessários para cobrir os custos da operação
+        e atingir as metas de resultado.
+      </p>
+    </div>
+
+    <div class="scenario-badge">
+      Cenário ativo
+    </div>
+
+  </header>
+
+  <section class="kpi-grid">
+
+    <article class="kpi-card">
+
+      <span>
+        Margem de contribuição
+      </span>
+
+      <strong>
+        {{ currency(result().contributionMarginPerHa) }}
+      </strong>
+
+      <small>
+        por hectare
+      </small>
+
+    </article>
+
+    <article class="kpi-card highlight">
+
+      <span>
+        Hectares para empatar
+      </span>
+
+      <strong>
+        {{ number(result().breakEvenHectares) }} ha
+      </strong>
+
+      <small>
+        Ponto de equilíbrio
+      </small>
+
+    </article>
+
+    <article class="kpi-card">
+
+      <span>
+        Horas para empatar
+      </span>
+
+      <strong>
+        {{ number(result().breakEvenHours, 1) }} h
+      </strong>
+
+      <small>
+        Considerando a produtividade atual
+      </small>
+
+    </article>
+
+    <article
+      class="kpi-card"
+      [class.positive]="
+        result().safetyMarginPercent > 0
+      "
+      [class.negative]="
+        result().safetyMarginPercent < 0
+      ">
+
+      <span>
+        Margem de segurança
+      </span>
+
+      <strong>
+        {{ percent(result().safetyMarginPercent) }}
+      </strong>
+
+      <small>
+        Folga antes do prejuízo
+      </small>
+
+    </article>
+
+  </section>
+
+  <div class="main-grid">
+
+    <section class="panel">
+
+      <header class="panel-header">
+
+        <div>
+          <span class="eyebrow">
+            PREMISSAS
+          </span>
+
+          <h2>
+            Cenário financeiro
+          </h2>
+
+          <p>
+            Ajuste os parâmetros para simular
+            diferentes cenários.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="ghost-button"
+          (click)="resetScenario()">
+          Restaurar cenário
+        </button>
+
+      </header>
+
+      <div class="form-grid">
+
+        <label>
+          <span>
+            Custos fixos anuais
+          </span>
+
+          <div class="input-wrapper">
+            <span>R$</span>
+
+            <input
+              #fixedCosts
+              type="number"
+              min="0"
+              step="1000"
+              [value]="scenario().fixedCostsAnnual"
+              (input)="
+                updateField(
+                  'fixedCostsAnnual',
+                  fixedCosts.value
+                )
+              "
+            />
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Preço por hectare
+          </span>
+
+          <div class="input-wrapper">
+            <span>R$</span>
+
+            <input
+              #pricePerHa
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().pricePerHa"
+              (input)="
+                updateField(
+                  'pricePerHa',
+                  pricePerHa.value
+                )
+              "
+            />
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Custo variável por ha
+          </span>
+
+          <div class="input-wrapper">
+            <span>R$</span>
+
+            <input
+              #variableCost
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().variableCostPerHa"
+              (input)="
+                updateField(
+                  'variableCostPerHa',
+                  variableCost.value
+                )
+              "
+            />
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Comissão piloto por ha
+          </span>
+
+          <div class="input-wrapper">
+            <span>R$</span>
+
+            <input
+              #pilotCommission
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().pilotCommissionPerHa"
+              (input)="
+                updateField(
+                  'pilotCommissionPerHa',
+                  pilotCommission.value
+                )
+              "
+            />
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Impostos por ha
+          </span>
+
+          <div class="input-wrapper">
+            <span>R$</span>
+
+            <input
+              #taxes
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="scenario().taxesPerHa"
+              (input)="
+                updateField(
+                  'taxesPerHa',
+                  taxes.value
+                )
+              "
+            />
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Hectares projetados
+          </span>
+
+          <div class="input-wrapper">
+            <input
+              #projectedHa
+              type="number"
+              min="0"
+              step="100"
+              [value]="scenario().projectedHectares"
+              (input)="
+                updateField(
+                  'projectedHectares',
+                  projectedHa.value
+                )
+              "
+            />
+
+            <span>ha</span>
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Produtividade média
+          </span>
+
+          <div class="input-wrapper">
+            <input
+              #productivity
+              type="number"
+              min="0"
+              step="1"
+              [value]="scenario().productivityHaPerHour"
+              (input)="
+                updateField(
+                  'productivityHaPerHour',
+                  productivity.value
+                )
+              "
+            />
+
+            <span>ha/h</span>
+          </div>
+        </label>
+
+      </div>
+
+    </section>
+
+    <aside class="panel projection-panel">
+
+      <span class="eyebrow">
+        PROJEÇÃO DA SAFRA
+      </span>
+
+      <h2>
+        {{ number(scenario().projectedHectares) }} ha
+      </h2>
+
+      <p>
+        Volume considerado no cenário atual.
+      </p>
+
+      <div class="projection-row">
+
+        <span>
+          Horas previstas
+        </span>
+
+        <strong>
+          {{ number(projectedHours(), 1) }} h
+        </strong>
+
+      </div>
+
+      <div class="projection-row">
+
+        <span>
+          Ponto de equilíbrio
+        </span>
+
+        <strong>
+          {{ number(result().breakEvenHectares) }} ha
+        </strong>
+
+      </div>
+
+      <div class="projection-row">
+
+        <span>
+          Folga em hectares
+        </span>
+
+        <strong>
+          {{ number(result().safetyMarginHectares) }} ha
+        </strong>
+
+      </div>
+
+      <div class="progress-label">
+
+        <span>
+          Ponto de equilíbrio sobre a produção
+        </span>
+
+        <strong>
+          {{
+            percent(
+              result().breakEvenHectares
+              / scenario().projectedHectares
+            )
+          }}
+        </strong>
+
+      </div>
+
+      <div class="progress-track">
+        <span
+          [style.width.%]="
+            (
+              result().breakEvenHectares
+              / scenario().projectedHectares
+              * 100
+            ) > 100
+              ? 100
+              : (
+                  result().breakEvenHectares
+                  / scenario().projectedHectares
+                  * 100
+                )
+          ">
+        </span>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <section class="panel">
+
+    <header class="panel-header">
+
+      <div>
+
+        <span class="eyebrow">
+          METAS DE RESULTADO
+        </span>
+
+        <h2>
+          Quanto precisamos produzir?
+        </h2>
+
+        <p>
+          Hectares, horas de voo e faturamento
+          necessários para cada objetivo de lucro.
+        </p>
+
+      </div>
+
+    </header>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Lucro-alvo</th>
+            <th>Hectares necessários</th>
+            <th>Horas de voo</th>
+            <th>Faturamento necessário</th>
+            <th>Viável no cenário?</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (
+            target of profitTargets();
+            track target.targetProfit
+          ) {
+
+            <tr>
+
+              <td class="target-value">
+                {{ currency(target.targetProfit) }}
+              </td>
+
+              <td>
+                {{ number(target.requiredHectares) }}
+                ha
+              </td>
+
+              <td>
+                {{ number(target.requiredHours, 1) }}
+                h
+              </td>
+
+              <td>
+                {{ currency(target.requiredRevenue) }}
+              </td>
+
+              <td>
+
+                @if (
+                  target.requiredHectares
+                  <= scenario().projectedHectares
+                ) {
+
+                  <span class="status success">
+                    Atingível
+                  </span>
+
+                } @else {
+
+                  <span class="status warning">
+                    Acima da projeção
+                  </span>
+
+                }
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+  <div class="info-box">
+
+    <strong>
+      Como o cálculo funciona?
+    </strong>
+
+    <p>
+      O ponto de equilíbrio considera os custos fixos
+      divididos pela margem de contribuição por hectare.
+      Alterações no preço, comissão, impostos ou custos
+      variáveis atualizam automaticamente toda a análise.
+    </p>
+
+  </div>
+
+</section>
