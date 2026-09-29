@@ -67,6 +67,10 @@ export class Sidebar {
               route: '/financeiro/custos'
             },
             {
+              label: 'Ponto de Equilíbrio',
+              route: '/financeiro/ponto-equilibrio'
+            },
+            {
               label: 'Contas a Pagar e Receber',
               route: '/financeiro/contas-pagar-receber'
             },
