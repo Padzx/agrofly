@@ -2,8 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
-  signal
+  inject
 } from '@angular/core';
 
 import {
@@ -23,6 +22,10 @@ import {
   FinancialSeasonPlanningService
 } from '../../../core/financial/financial-season-planning.service';
 
+import {
+  FinancialSeasonStateService
+} from '../../../core/financial/financial-season-state.service';
+
 @Component({
   selector: 'app-season-planning',
   standalone: true,
@@ -39,15 +42,14 @@ export class SeasonPlanning {
   private readonly financialScenario =
     inject(FinancialScenarioService);
 
+  private readonly seasonState =
+    inject(FinancialSeasonStateService);
+
   readonly scenario =
     this.financialScenario.scenario;
 
   readonly allocation =
-    signal<SeasonMonthAllocation[]>(
-      this.seasonService.initialAllocation.map(
-        item => ({ ...item })
-      )
-    );
+    this.seasonState.allocation;
 
   readonly projection = computed(() =>
     this.seasonService.calculateSeason(
@@ -156,37 +158,16 @@ export class SeasonPlanning {
         value.replace(',', '.')
       );
 
-    if (
-      Number.isNaN(parsed)
-      || parsed < 0
-      || parsed > 100
-    ) {
-      return;
-    }
-
-    this.allocation.update(
-      current =>
-        current.map(
-          item =>
-            item.month === month
-              ? {
-                  ...item,
-                  percentage: parsed
-                }
-              : item
-        )
+    this.seasonState.updatePercentage(
+      month,
+      parsed
     );
   }
 
   resetScenario(): void {
 
     this.financialScenario.reset();
-
-    this.allocation.set(
-      this.seasonService.initialAllocation.map(
-        item => ({ ...item })
-      )
-    );
+    this.seasonState.reset();
   }
 
   monthName(
