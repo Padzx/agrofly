@@ -129,12 +129,29 @@ export class FinancialScenarioService {
       return;
     }
 
-    this.scenario.update(
-      current => ({
+    this.scenario.update(current => {
+
+      const next: FinancialScenario = {
         ...current,
         [field]: value
-      })
-    );
+      };
+
+      /*
+       * Custos fixos operacionais da DRE
+       * precisam permanecer sincronizados
+       * com seu detalhamento.
+       */
+      if (
+        field === 'baseFixedCostsAnnual'
+        || field === 'groundTeamLogisticsAnnual'
+      ) {
+        next.operatingFixedCostsAnnual =
+          next.baseFixedCostsAnnual
+          + next.groundTeamLogisticsAnnual;
+      }
+
+      return next;
+    });
   }
 
   reset(): void {

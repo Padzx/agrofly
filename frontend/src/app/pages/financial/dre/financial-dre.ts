@@ -3,8 +3,8 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
-  OnInit,
   signal
 } from '@angular/core';
 
@@ -27,6 +27,10 @@ import {
 import {
   FinancialDreService
 } from '../../../core/financial/financial-dre.service';
+
+import {
+  FinancialScenarioService
+} from '../../../core/financial/financial-scenario.service';
 
 type LoadingState =
   | 'loading'
@@ -51,10 +55,13 @@ interface DreDefinition {
   styleUrl: './financial-dre.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FinancialDre implements OnInit {
+export class FinancialDre {
 
   private readonly service =
     inject(FinancialDreService);
+
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
 
   private readonly destroyRef =
     inject(DestroyRef);
@@ -224,6 +231,24 @@ export class FinancialDre implements OnInit {
     }
   ]);
 
+  constructor() {
+
+    /*
+     * Mantém a DRE sincronizada com o
+     * cenário financeiro compartilhado.
+     *
+     * O effect acompanha tanto alterações
+     * do cenário quanto da competência.
+     */
+    effect(() => {
+
+      this.financialScenario.scenario();
+      this.competence();
+
+      this.load();
+    });
+  }
+
   readonly statusLabel = computed(() => {
     switch (this.state()) {
       case 'loading':
@@ -239,10 +264,6 @@ export class FinancialDre implements OnInit {
         return 'Dados indisponíveis';
     }
   });
-
-  ngOnInit(): void {
-    this.load();
-  }
 
   setViewMode(
     mode: DreViewMode
@@ -260,7 +281,6 @@ export class FinancialDre implements OnInit {
     }
 
     this.competence.set(value);
-    this.load();
   }
 
   load(): void {

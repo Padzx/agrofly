@@ -26,6 +26,10 @@ import {
   FinancialCostsService,
 } from '../../../core/financial/financial-costs.service';
 
+import {
+  FinancialScenarioService
+} from '../../../core/financial/financial-scenario.service';
+
 type ViewState =
   | 'loading'
   | 'ready'
@@ -46,6 +50,9 @@ interface CategoryOption {
 })
 export class FinancialCosts implements OnInit {
   private readonly service = inject(FinancialCostsService);
+
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
   private readonly destroyRef = inject(DestroyRef);
 
   private request?: Subscription;
@@ -123,6 +130,62 @@ export class FinancialCosts implements OnInit {
   readonly summary = computed(
     () => this.snapshot()?.summary
   );
+
+
+  readonly scenario =
+    this.financialScenario.scenario;
+
+  readonly variableCostPerHa =
+    this.financialScenario.variableCostPerHa;
+
+  readonly projectedVariableCosts =
+    computed(() =>
+      this.variableCostPerHa()
+      * this.scenario().projectedHectares
+    );
+
+  readonly totalOperatingFixedCosts =
+    computed(() =>
+      this.scenario().baseFixedCostsAnnual
+      + this.scenario().groundTeamLogisticsAnnual
+    );
+
+  readonly economicCostPerHa =
+    computed(() => {
+
+      const scenario =
+        this.scenario();
+
+      if (scenario.projectedHectares <= 0) {
+        return 0;
+      }
+
+      return (
+        this.variableCostPerHa()
+        + scenario.pilotCommissionPerHa
+        + (
+            this.totalOperatingFixedCosts()
+            / scenario.projectedHectares
+          )
+      );
+    });
+
+  readonly totalProjectedCosts =
+    computed(() => {
+
+      const scenario =
+        this.scenario();
+
+      const pilot =
+        scenario.pilotCommissionPerHa
+        * scenario.projectedHectares;
+
+      return (
+        this.projectedVariableCosts()
+        + pilot
+        + this.totalOperatingFixedCosts()
+      );
+    });
 
   readonly filteredRecords = computed(() => {
     const records = this.snapshot()?.records ?? [];
@@ -353,6 +416,35 @@ export class FinancialCosts implements OnInit {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  }
+
+  updateScenarioField(
+    field:
+      | 'fuelCostPerHa'
+      | 'maintenanceReservePerHa'
+      | 'otherVariableCostPerHa'
+      | 'pilotCommissionPerHa'
+      | 'baseFixedCostsAnnual'
+      | 'groundTeamLogisticsAnnual',
+    value: string
+  ): void {
+
+    const parsed =
+      Number(
+        value.replace(',', '.')
+      );
+
+    if (
+      Number.isNaN(parsed)
+      || parsed < 0
+    ) {
+      return;
+    }
+
+    this.financialScenario.updateField(
+      field,
+      parsed
+    );
   }
 
   private emptyDraft(): CreateCostRecord {

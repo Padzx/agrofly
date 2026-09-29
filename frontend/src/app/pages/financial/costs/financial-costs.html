@@ -15,14 +15,287 @@
   </ui-button>
 </section>
 
-<div class="preview-notice">
-  <strong>Pré-visualização do frontend</strong>
-  <p>
-    Os lançamentos adicionados aqui são temporários.
-    Não são salvos no banco de dados nem enviados à
-    DRE, ao Fluxo de Caixa ou às Contas a Pagar.
-  </p>
-</div>
+<section class="financial-section">
+
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">
+        INTELIGÊNCIA DE CUSTOS
+      </p>
+
+      <h2>
+        Estrutura econômica da operação
+      </h2>
+    </div>
+
+    <span class="status-chip">
+      Cenário compartilhado
+    </span>
+  </div>
+
+  <div class="metrics">
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Custo variável
+        </span>
+
+        <strong class="metric__value">
+          {{ money(variableCostPerHa()) }}/ha
+        </strong>
+
+        <span class="metric__note">
+          Combustível + manutenção + variáveis
+        </span>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Comissão piloto
+        </span>
+
+        <strong class="metric__value">
+          {{ money(scenario().pilotCommissionPerHa) }}/ha
+        </strong>
+
+        <span class="metric__note">
+          Custo operacional por hectare
+        </span>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Custos fixos operacionais
+        </span>
+
+        <strong class="metric__value">
+          {{ money(totalOperatingFixedCosts()) }}
+        </strong>
+
+        <span class="metric__note">
+          Base fixa + equipe solo e logística
+        </span>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Custo econômico estimado
+        </span>
+
+        <strong class="metric__value">
+          {{ money(economicCostPerHa()) }}/ha
+        </strong>
+
+        <span class="metric__note">
+          Variáveis + piloto + fixos
+        </span>
+
+      </div>
+    </ui-card>
+
+  </div>
+
+</section>
+
+<section class="financial-section">
+
+  <ui-card>
+
+    <div class="panel-heading">
+
+      <div>
+        <p class="eyebrow">
+          PREMISSAS
+        </p>
+
+        <h2>
+          Custos utilizados nas projeções
+        </h2>
+
+        <p class="muted">
+          Alterações realizadas aqui atualizam o cenário
+          financeiro compartilhado entre DRE, Safra,
+          Ponto de Equilíbrio e Fluxo de Caixa.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="entry-form">
+
+      <div class="field">
+
+        <label for="scenario-fuel">
+          Combustível AgroFly por hectare
+        </label>
+
+        <input
+          #fuelCost
+          id="scenario-fuel"
+          type="number"
+          min="0"
+          step="0.01"
+          [value]="scenario().fuelCostPerHa"
+          (input)="
+            updateScenarioField(
+              'fuelCostPerHa',
+              fuelCost.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label for="scenario-maintenance">
+          Reserva de manutenção por hectare
+        </label>
+
+        <input
+          #maintenanceCost
+          id="scenario-maintenance"
+          type="number"
+          min="0"
+          step="0.01"
+          [value]="scenario().maintenanceReservePerHa"
+          (input)="
+            updateScenarioField(
+              'maintenanceReservePerHa',
+              maintenanceCost.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label for="scenario-variable">
+          Outros variáveis por hectare
+        </label>
+
+        <input
+          #otherVariable
+          id="scenario-variable"
+          type="number"
+          min="0"
+          step="0.01"
+          [value]="scenario().otherVariableCostPerHa"
+          (input)="
+            updateScenarioField(
+              'otherVariableCostPerHa',
+              otherVariable.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label for="scenario-pilot">
+          Comissão piloto por hectare
+        </label>
+
+        <input
+          #pilotCommission
+          id="scenario-pilot"
+          type="number"
+          min="0"
+          step="0.01"
+          [value]="scenario().pilotCommissionPerHa"
+          (input)="
+            updateScenarioField(
+              'pilotCommissionPerHa',
+              pilotCommission.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label for="scenario-fixed">
+          Custos fixos-base anuais
+        </label>
+
+        <input
+          #fixedCosts
+          id="scenario-fixed"
+          type="number"
+          min="0"
+          step="1000"
+          [value]="scenario().baseFixedCostsAnnual"
+          (input)="
+            updateScenarioField(
+              'baseFixedCostsAnnual',
+              fixedCosts.value
+            )
+          "
+        />
+
+      </div>
+
+      <div class="field">
+
+        <label for="scenario-ground">
+          Equipe solo + logística anual
+        </label>
+
+        <input
+          #groundTeam
+          id="scenario-ground"
+          type="number"
+          min="0"
+          step="1000"
+          [value]="scenario().groundTeamLogisticsAnnual"
+          (input)="
+            updateScenarioField(
+              'groundTeamLogisticsAnnual',
+              groundTeam.value
+            )
+          "
+        />
+
+      </div>
+
+    </div>
+
+    <div class="preview-notice">
+
+      <strong>
+        Cenário integrado x lançamentos
+      </strong>
+
+      <p>
+        As premissas acima alimentam as projeções
+        financeiras compartilhadas. Os lançamentos
+        adicionados abaixo continuam temporários nesta
+        fase do frontend e não alteram automaticamente
+        essas premissas.
+      </p>
+
+    </div>
+
+  </ui-card>
+
+</section>
 
 <section class="filters" aria-label="Filtros por período">
   <div class="field">
