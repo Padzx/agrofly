@@ -2,50 +2,189 @@
 
 :host {
   display: block;
+  min-width: 0;
 }
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
 
 .page-heading {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 24px;
+
+  margin-bottom: 18px;
 }
 
 .page-heading h1 {
-  margin: 4px 0 8px;
+  margin: 5px 0 8px;
+
+  font-size: clamp(
+    1.7rem,
+    3vw,
+    2.25rem
+  );
+
+  line-height: 1.1;
 }
 
 .page-heading .muted {
-  max-width: 650px;
+  max-width: 680px;
   margin: 0;
 }
 
-.status-chip,
-.report-badge {
-  padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
+.eyebrow {
+  margin: 0;
+
+  color: var(--primary);
+
+  font-size: 0.68rem;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   FILTRO / COMPETÊNCIA
+   ========================================================= */
+
+.dre-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.dre-toolbar label {
   color: var(--muted);
-  background: var(--surface);
-  font-size: 0.72rem;
+
+  font-size: 0.76rem;
   font-weight: 700;
 }
+
+.dre-toolbar input {
+  min-height: 42px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  outline: none;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font: inherit;
+  font-size: 0.82rem;
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dre-toolbar input:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(94, 224, 182, 0.08);
+}
+
+.dre-toolbar input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dre-status {
+  width: fit-content;
+
+  margin-bottom: 28px;
+
+  padding: 6px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  color: var(--muted);
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.dre-feedback {
+  margin-bottom: 28px;
+}
+
+.dre-feedback h2 {
+  margin-top: 0;
+
+  font-size: 1rem;
+}
+
+.dre-feedback ui-button {
+  display: inline-block;
+
+  margin-top: 12px;
+}
+
+/* =========================================================
+   SEÇÕES
+   ========================================================= */
 
 .financial-section {
   margin-bottom: 28px;
 }
 
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+
+  margin-bottom: 15px;
+}
+
 .section-title {
-  margin: 0 0 15px;
+  margin: 5px 0 0;
+
   font-size: 1rem;
 }
 
+.area-reference {
+  padding: 7px 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background:
+    rgba(94, 224, 182, 0.04);
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   INDICADORES
+   ========================================================= */
+
 .metrics {
   display: grid;
+
   grid-template-columns:
     repeat(4, minmax(0, 1fr));
+
   gap: 15px;
 }
 
@@ -53,133 +192,357 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+
   min-width: 0;
 }
 
 .metric__label {
   color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
+
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .metric__value {
   color: var(--text);
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
-  line-height: 1.2;
+
+  font-size: clamp(
+    1.35rem,
+    2vw,
+    1.85rem
+  );
+
+  line-height: 1.15;
 }
 
-.metric__note {
-  color: var(--muted);
+.metric__helper {
+  color: var(--primary);
+
   font-size: 0.72rem;
+  font-weight: 700;
 }
+
+/* =========================================================
+   CABEÇALHO DO RELATÓRIO
+   ========================================================= */
 
 .report-heading {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 15px;
+
+  gap: 24px;
+
   margin-bottom: 22px;
 }
 
 .report-heading h2 {
-  margin: 0 0 5px;
-  font-size: 1.05rem;
+  margin: 5px 0;
+
+  font-size: 1.08rem;
 }
 
-.report-heading p {
+.report-heading .muted {
   margin: 0;
 }
 
+/* =========================================================
+   SELETOR R$ / HA / %
+   ========================================================= */
+
+.view-switcher {
+  display: inline-flex;
+
+  padding: 4px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgba(0, 0, 0, 0.12);
+
+  white-space: nowrap;
+}
+
+.view-switcher button {
+  min-height: 36px;
+
+  padding: 0 13px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  font: inherit;
+  font-size: 0.73rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.view-switcher button:hover {
+  color: var(--text);
+}
+
+.view-switcher button.active {
+  background:
+    rgba(94, 224, 182, 0.13);
+
+  color: var(--primary);
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(94, 224, 182, 0.18);
+}
+
+/* =========================================================
+   TABELA DRE
+   ========================================================= */
+
 .table-container {
   width: 100%;
+
   overflow-x: auto;
 }
 
 .dre-table {
   width: 100%;
+
   border-collapse: collapse;
 }
 
 .dre-table th,
 .dre-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 14px;
+
+  border-bottom:
+    1px solid var(--border);
+
   font-size: 0.82rem;
 }
 
 .dre-table thead th {
+  padding-top: 10px;
+  padding-bottom: 11px;
+
   color: var(--muted);
-  text-align: left;
-  font-size: 0.72rem;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.dre-table td,
+.dre-table thead th:first-child {
+  text-align: left;
+}
+
 .dre-table thead th:last-child {
   text-align: right;
-  white-space: nowrap;
 }
 
 .dre-table tbody th {
   text-align: left;
+
+  color: var(--text);
+
   font-weight: 500;
 }
 
-.dre-table__row--deduction {
+.dre-table tbody td {
+  text-align: right;
+
+  color: var(--text);
+
+  font-variant-numeric:
+    tabular-nums;
+
+  white-space: nowrap;
+}
+
+.dre-table tbody tr {
+  transition:
+    background 120ms ease;
+}
+
+.dre-table tbody tr:hover {
+  background:
+    rgba(255, 255, 255, 0.018);
+}
+
+/* Deduções */
+
+.dre-table__row--deduction th,
+.dre-table__row--deduction td {
   color: var(--muted);
 }
 
+/* Subtotais */
+
 .dre-table__row--subtotal {
-  background: rgba(94, 224, 182, 0.04);
+  background:
+    rgba(94, 224, 182, 0.035);
 }
 
 .dre-table__row--subtotal th,
 .dre-table__row--subtotal td {
+  color: var(--text);
+
   font-weight: 800;
 }
 
-.dre-table__row--result {
-  background: rgba(94, 224, 182, 0.09);
+.dre-table__row--subtotal td {
   color: var(--primary);
+}
+
+/* Resultado líquido */
+
+.dre-table__row--result {
+  background:
+    rgba(94, 224, 182, 0.09);
 }
 
 .dre-table__row--result th,
 .dre-table__row--result td {
-  font-weight: 800;
+  padding-top: 17px;
+  padding-bottom: 17px;
+
+  color: var(--primary);
+
+  font-size: 0.94rem;
+  font-weight: 900;
+}
+
+.dre-table__row--result th {
+  border-left:
+    3px solid var(--primary);
+}
+
+/* =========================================================
+   CARDS DE INTELIGÊNCIA
+   ========================================================= */
+
+.analysis-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.analysis-card {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 180px;
+
+  gap: 8px;
+}
+
+.analysis-card h3 {
+  margin: 2px 0 4px;
+
+  color: var(--text);
+
   font-size: 0.95rem;
 }
 
-.cost-categories {
-  display: grid;
-  gap: 0;
+.analysis-card > strong {
+  margin: 2px 0 6px;
+
+  color: var(--primary);
+
+  font-size: clamp(
+    1rem,
+    1.5vw,
+    1.25rem
+  );
+
+  line-height: 1.3;
 }
 
-.cost-category {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.8rem;
+.analysis-card .muted {
+  margin: auto 0 0;
+
+  font-size: 0.76rem;
+  line-height: 1.55;
 }
 
-.cost-category strong {
-  white-space: nowrap;
-}
+/* =========================================================
+   NOTAS
+   ========================================================= */
 
 .report-note {
   margin: 20px 0 0;
+
   color: var(--muted);
+
   font-size: 0.75rem;
 }
 
+/* =========================================================
+   TABLET
+   ========================================================= */
+
 @include bp.tablet {
+
   .metrics {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
+
+  .analysis-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .analysis-card {
+    min-height: auto;
+  }
+
+  .analysis-card .muted {
+    margin-top: 5px;
+  }
 }
 
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @include bp.mobile {
+
+  .page-heading {
+    flex-direction: column;
+  }
+
+  .dre-toolbar {
+    width: 100%;
+  }
+
+  .dre-toolbar input {
+    flex: 1;
+    min-width: 145px;
+  }
+
+  .section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .area-reference {
+    white-space: normal;
+  }
+
   .metrics {
     grid-template-columns: 1fr;
   }
@@ -187,48 +550,26 @@
   .report-heading {
     flex-direction: column;
   }
-}
 
+  .view-switcher {
+    width: 100%;
 
-/* Filtro e estados da DRE */
+    overflow-x: auto;
+  }
 
-.dre-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-}
+  .view-switcher button {
+    flex: 1;
+  }
 
-.dre-toolbar label {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-}
+  .dre-table th,
+  .dre-table td {
+    padding:
+      13px 10px;
 
-.dre-toolbar input {
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
-}
+    font-size: 0.76rem;
+  }
 
-.dre-status {
-  margin-bottom: 20px;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.dre-feedback {
-  margin-bottom: 24px;
-}
-
-.dre-feedback h2 {
-  margin-top: 0;
-  font-size: 1rem;
-}
-
-.dre-feedback ui-button {
-  margin-top: 12px;
+  .dre-table tbody th {
+    min-width: 210px;
+  }
 }

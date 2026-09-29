@@ -1,37 +1,39 @@
 export type DreCode =
   | 'grossRevenue'
-  | 'revenueDeductions'
+  | 'revenueTaxes'
   | 'netRevenue'
-  | 'serviceCosts'
-  | 'grossProfit'
-  | 'administrativeExpenses'
-  | 'commercialExpenses'
-  | 'otherOperatingResult'
-  | 'operatingResult'
-  | 'financialResult'
-  | 'profitBeforeTaxes'
-  | 'incomeTaxes'
+  | 'pilotCommission'
+  | 'fuelCosts'
+  | 'maintenanceReserve'
+  | 'otherVariableCosts'
+  | 'contributionMargin'
+  | 'fixedCosts'
+  | 'ebitda'
+  | 'depreciation'
+  | 'ebit'
+  | 'interest'
   | 'netProfit';
 
-export type DreCostCode =
-  | 'fuel'
-  | 'crew'
-  | 'maintenance'
-  | 'mobilization'
-  | 'other';
+export type DreRowType =
+  | 'normal'
+  | 'deduction'
+  | 'subtotal'
+  | 'result';
+
+export type DreViewMode =
+  | 'total'
+  | 'perHa'
+  | 'percent';
 
 export interface FinancialDreDto {
   status: 'READY' | 'EMPTY';
 
-  // Competência no formato YYYY-MM.
   competence: string;
 
-  // Deduções e despesas são valores negativos.
-  values: Partial<Record<DreCode, number | null>>;
+  hectares: number;
 
-  // Custos por categoria, expressos como valores positivos.
-  costBreakdown?: Partial<
-    Record<DreCostCode, number | null>
+  values: Partial<
+    Record<DreCode, number | null>
   >;
 
   updatedAt: string | null;

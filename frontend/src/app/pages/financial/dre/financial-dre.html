@@ -1,14 +1,23 @@
 <section class="page-heading">
+
   <div>
-    <p class="eyebrow">GESTÃO FINANCEIRA</p>
+    <p class="eyebrow">
+      INTELIGÊNCIA FINANCEIRA
+    </p>
+
     <h1>DRE Gerencial</h1>
+
     <p class="muted">
-      Demonstração dos resultados por competência.
+      Resultado econômico da operação com análise
+      total, por hectare e proporcional à receita.
     </p>
   </div>
 
   <div class="dre-toolbar">
-    <label for="dre-competence">Competência</label>
+
+    <label for="dre-competence">
+      Competência
+    </label>
 
     <input
       #monthInput
@@ -26,20 +35,31 @@
     >
       Aplicar
     </ui-button>
+
   </div>
+
 </section>
 
-<div class="dre-status" role="status">
+<div
+  class="dre-status"
+  role="status"
+>
   {{ statusLabel() }}
 </div>
 
 @if (state() === 'unavailable') {
+
   <section class="dre-feedback">
+
     <ui-card>
-      <h2>Não foi possível carregar a DRE</h2>
+
+      <h2>
+        Não foi possível carregar a DRE
+      </h2>
+
       <p class="muted">
-        A API financeira está indisponível
-        ou ainda não foi implementada.
+        Os dados financeiros não estão
+        disponíveis neste momento.
       </p>
 
       <ui-button
@@ -48,17 +68,45 @@
       >
         Tentar novamente
       </ui-button>
+
     </ui-card>
+
   </section>
+
 }
 
 <section class="financial-section">
-  <h2 class="section-title">Indicadores do resultado</h2>
+
+  <div class="section-heading">
+
+    <div>
+      <p class="eyebrow">
+        VISÃO EXECUTIVA
+      </p>
+
+      <h2 class="section-title">
+        Indicadores do resultado
+      </h2>
+    </div>
+
+    <span class="area-reference">
+      Base econômica:
+      {{ hectares() }} ha
+    </span>
+
+  </div>
 
   <div class="metrics">
-    @for (item of indicators(); track item.code) {
+
+    @for (
+      item of indicators();
+      track item.label
+    ) {
+
       <ui-card>
+
         <div class="metric">
+
           <span class="metric__label">
             {{ item.label }}
           </span>
@@ -66,81 +114,235 @@
           <strong class="metric__value">
             {{ item.value }}
           </strong>
+
+          <span class="metric__helper">
+            {{ item.helper }}
+          </span>
+
         </div>
+
       </ui-card>
+
     }
+
   </div>
+
 </section>
 
 <section class="financial-section">
+
   <ui-card>
+
     <div class="report-heading">
+
       <div>
-        <h2>Demonstrativo de resultado</h2>
-        <p class="muted">
-          Valores por competência
+
+        <p class="eyebrow">
+          RESULTADO ECONÔMICO
         </p>
+
+        <h2>
+          Demonstrativo de resultado
+        </h2>
+
+        <p class="muted">
+          Escolha como visualizar
+          o mesmo resultado financeiro.
+        </p>
+
       </div>
-      <span class="report-badge">Gerencial</span>
+
+      <div class="view-switcher">
+
+        <button
+          type="button"
+          [class.active]="viewMode() === 'total'"
+          (click)="setViewMode('total')"
+        >
+          R$ total
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode() === 'perHa'"
+          (click)="setViewMode('perHa')"
+        >
+          R$/ha
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode() === 'percent'"
+          (click)="setViewMode('percent')"
+        >
+          % receita
+        </button>
+
+      </div>
+
     </div>
 
     <div class="table-container">
+
       <table class="dre-table">
+
         <thead>
+
           <tr>
-            <th scope="col">Descrição</th>
-            <th scope="col">Valor</th>
+
+            <th scope="col">
+              Descrição
+            </th>
+
+            <th scope="col">
+
+              @switch (viewMode()) {
+
+                @case ('perHa') {
+                  R$/ha
+                }
+
+                @case ('percent') {
+                  % da receita
+                }
+
+                @default {
+                  Valor
+                }
+
+              }
+
+            </th>
+
           </tr>
+
         </thead>
 
         <tbody>
-          @for (row of rows(); track row.code) {
+
+          @for (
+            row of rows();
+            track row.code
+          ) {
+
             <tr
               [class]="
                 'dre-table__row dre-table__row--'
                 + row.type
               "
             >
-              <th scope="row">{{ row.label }}</th>
-              <td>{{ row.value }}</td>
+
+              <th scope="row">
+                {{ row.label }}
+              </th>
+
+              <td>
+                {{ row.display }}
+              </td>
+
             </tr>
+
           }
+
         </tbody>
+
       </table>
+
     </div>
 
     @if (state() === 'empty') {
+
       <p class="report-note">
         Não existem lançamentos nesta competência.
       </p>
+
     }
+
   </ui-card>
+
 </section>
 
 <section class="financial-section">
-  <ui-card>
-    <div class="report-heading">
-      <div>
-        <h2>Detalhamento dos custos</h2>
-        <p class="muted">
-          Custos operacionais por categoria
+
+  <div class="analysis-grid">
+
+    <ui-card>
+
+      <div class="analysis-card">
+
+        <p class="eyebrow">
+          MARGEM
         </p>
+
+        <h3>
+          Margem de contribuição
+        </h3>
+
+        <strong>
+          {{ rows()[7].perHa }}/ha
+        </strong>
+
+        <p class="muted">
+          Valor disponível por hectare para absorver
+          os custos fixos e gerar resultado.
+        </p>
+
       </div>
-    </div>
 
-    <div class="cost-categories">
-      @for (cost of costs(); track cost.code) {
-        <div class="cost-category">
-          <span>{{ cost.label }}</span>
-          <strong>{{ cost.value }}</strong>
-        </div>
-      }
-    </div>
+    </ui-card>
 
-    <p class="report-note">
-      Combustível fornecido gratuitamente pela
-      fazenda não gera automaticamente uma
-      despesa para a AgroFly.
-    </p>
-  </ui-card>
+    <ui-card>
+
+      <div class="analysis-card">
+
+        <p class="eyebrow">
+          COMBUSTÍVEL
+        </p>
+
+        <h3>
+          Responsabilidade financeira
+        </h3>
+
+        <strong>
+          Separada do consumo físico
+        </strong>
+
+        <p class="muted">
+          Combustível fornecido pela fazenda
+          não é reconhecido automaticamente
+          como despesa da AgroFly.
+        </p>
+
+      </div>
+
+    </ui-card>
+
+    <ui-card>
+
+      <div class="analysis-card">
+
+        <p class="eyebrow">
+          DEPRECIAÇÃO
+        </p>
+
+        <h3>
+          Custo econômico do ativo
+        </h3>
+
+        <strong>
+          {{ rows()[10].perHa }}/ha
+        </strong>
+
+        <p class="muted">
+          A depreciação afeta o resultado,
+          mas não representa saída direta
+          de caixa no período.
+        </p>
+
+      </div>
+
+    </ui-card>
+
+  </div>
+
 </section>
