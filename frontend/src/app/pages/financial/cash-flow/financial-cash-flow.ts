@@ -1,229 +1,186 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
-  OnInit,
-  signal,
+  signal
 } from '@angular/core';
 
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription } from 'rxjs';
-
-import { Card } from '../../../shared/ui/card/card';
-import { Button } from '../../../shared/ui/button/button';
+import {
+  Card
+} from '../../../shared/ui/card/card';
 
 import {
-  CashFlowDto,
-  CashFlowPeriod,
-  MovementStatus,
+  CashFlowAssumptions
 } from '../../../core/financial/financial-cash-flow.model';
 
 import {
-  FinancialCashFlowService,
+  FinancialCashFlowService
 } from '../../../core/financial/financial-cash-flow.service';
-
-type ViewState =
-  | 'loading'
-  | 'ready'
-  | 'empty'
-  | 'unavailable';
-
-type StatusFilter = MovementStatus | 'ALL';
 
 @Component({
   selector: 'app-financial-cash-flow',
-  imports: [Card, Button],
+  standalone: true,
+  imports: [Card],
   templateUrl: './financial-cash-flow.html',
   styleUrl: './financial-cash-flow.scss',
+  changeDetection:
+    ChangeDetectionStrategy.OnPush
 })
-export class FinancialCashFlow implements OnInit {
+export class FinancialCashFlow {
+
   private readonly service =
     inject(FinancialCashFlowService);
 
-  private readonly destroyRef = inject(DestroyRef);
-
-  private request?: Subscription;
-
-  readonly startMonth = signal(this.currentMonth());
-  readonly endMonth = signal(this.currentMonth());
-
-  readonly state = signal<ViewState>('loading');
-  readonly validationError = signal('');
-
-  private readonly snapshot =
-    signal<CashFlowDto | null>(null);
-
-  readonly statusFilter =
-    signal<StatusFilter>('ALL');
-
-  readonly summary = computed(
-    () => this.snapshot()?.summary
-  );
-
-  readonly timeline = computed(
-    () => this.snapshot()?.timeline ?? []
-  );
-
-  readonly movements = computed(() => {
-    const entries = this.snapshot()?.movements ?? [];
-    const status = this.statusFilter();
-
-    if (status === 'ALL') {
-      return entries;
-    }
-
-    return entries.filter(
-      movement => movement.status === status
+  readonly year =
+    signal(
+      new Date().getFullYear()
     );
-  });
 
-  readonly statusLabel = computed(() => {
-    if (this.state() === 'loading') {
-      return 'Carregando';
-    }
+  readonly assumptions =
+    this.service.assumptions;
 
-    if (this.state() === 'unavailable') {
-      return 'Dados indisponíveis';
-    }
+  readonly cashFlow =
+    computed(() =>
+      this.service.calculate(
+        this.year()
+      )
+    );
 
-    if (this.snapshot()?.source === 'PREVIEW') {
-      return 'Prévia sem dados reais';
-    }
+  readonly summary =
+    computed(() =>
+      this.cashFlow().summary
+    );
 
-    return this.state() === 'empty'
-      ? 'Sem movimentações'
-      : 'Dados atualizados';
-  });
+  readonly months =
+    computed(() =>
+      this.cashFlow().months
+    );
 
-  readonly maxBar = computed(() => {
-    const values = this.timeline().flatMap(point => [
-      point.realizedInflows,
-      point.realizedOutflows,
-      point.expectedInflows,
-      point.expectedOutflows,
-    ]);
+  readonly reconciliation =
+    computed(() =>
+      this.cashFlow().reconciliation
+    );
 
-    return Math.max(1, ...values);
-  });
+  readonly outflowBreakdown =
+    computed(() => {
 
-  ngOnInit(): void {
-    this.load();
-  }
+      const months =
+        this.months();
 
-  applyPeriod(
-    start: string,
-    end: string
+      return {
+        pilotCommission:
+          months.reduce(
+            (total, month) =>
+              total
+              + month.pilotCommission,
+            0
+          ),
+
+        taxes:
+          months.reduce(
+            (total, month) =>
+              total + month.taxes,
+            0
+          ),
+
+        variableCosts:
+          months.reduce(
+            (total, month) =>
+              total
+              + month.variableCosts,
+            0
+          ),
+
+        fixedCosts:
+          months.reduce(
+            (total, month) =>
+              total + month.fixedCosts,
+            0
+          ),
+
+        groundTeamLogistics:
+          months.reduce(
+            (total, month) =>
+              total
+              + month.groundTeamLogistics,
+            0
+          ),
+
+        interest:
+          months.reduce(
+            (total, month) =>
+              total + month.interest,
+            0
+          ),
+
+        amortization:
+          months.reduce(
+            (total, month) =>
+              total + month.amortization,
+            0
+          )
+      };
+    });
+
+  setYear(
+    value: string
   ): void {
-    const valid = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+    const parsed =
+      Number(value);
 
     if (
-      !valid.test(start) ||
-      !valid.test(end) ||
-      start > end
+      !Number.isInteger(parsed)
+      || parsed < 2000
+      || parsed > 2100
     ) {
-      this.validationError.set(
-        'Informe um período inicial anterior ou igual ao final.'
-      );
       return;
     }
 
-    this.validationError.set('');
-    this.startMonth.set(start);
-    this.endMonth.set(end);
-
-    this.load();
+    this.year.set(parsed);
   }
 
-  setStatus(value: string): void {
-    if (
-      value === 'ALL' ||
-      value === 'SETTLED' ||
-      value === 'SCHEDULED'
-    ) {
-      this.statusFilter.set(value);
-    }
-  }
+  updateAssumption(
+    field: keyof CashFlowAssumptions,
+    value: string
+  ): void {
 
-  load(): void {
-    this.request?.unsubscribe();
+    const parsed =
+      Number(
+        value.replace(',', '.')
+      );
 
-    this.snapshot.set(null);
-    this.state.set('loading');
-
-    const period = this.buildPeriod();
-
-    this.request = this.service
-      .getCashFlow(period)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: data => {
-          this.snapshot.set(data);
-
-          this.state.set(
-            data.status === 'EMPTY'
-              ? 'empty'
-              : 'ready'
-          );
-        },
-        error: () => {
-          this.snapshot.set(null);
-          this.state.set('unavailable');
-        },
-      });
-  }
-
-  barHeight(value: number): number {
-    return Math.max(
-      2,
-      Math.max(0, value) / this.maxBar() * 100
+    this.service.updateAssumption(
+      field,
+      parsed
     );
   }
 
   money(
-    value: number | null | undefined
+    value: number
   ): string {
-    if (value == null) {
-      return 'R$ —';
-    }
 
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
+    return new Intl.NumberFormat(
+      'pt-BR',
+      {
+        style: 'currency',
+        currency: 'BRL'
+      }
+    ).format(value);
   }
 
-  displayDate(value: string): string {
-    const [year, month, day] = value.split('-');
-    return `${day}/${month}/${year}`;
-  }
+  number(
+    value: number,
+    digits = 0
+  ): string {
 
-  private currentMonth(): string {
-    const now = new Date();
-
-    return [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-    ].join('-');
-  }
-
-  private buildPeriod(): CashFlowPeriod {
-    const start = this.startMonth();
-    const end = this.endMonth();
-
-    const [year, month] = end
-      .split('-')
-      .map(Number);
-
-    const lastDay = new Date(
-      year,
-      month,
-      0
-    ).getDate();
-
-    return {
-      start: `${start}-01`,
-      end: `${end}-${String(lastDay).padStart(2, '0')}`,
-    };
+    return new Intl.NumberFormat(
+      'pt-BR',
+      {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      }
+    ).format(value);
   }
 }

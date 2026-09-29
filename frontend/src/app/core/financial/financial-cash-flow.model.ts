@@ -1,50 +1,93 @@
 export interface CashFlowPeriod {
-  start: string;
-  end: string;
+  year: number;
 }
 
-export type MovementKind = 'INFLOW' | 'OUTFLOW';
+export interface CashFlowAssumptions {
+  openingBalance: number;
 
-export type MovementStatus =
-  | 'SETTLED'
-  | 'SCHEDULED';
+  /**
+   * Prazo entre a competência da receita
+   * e o efetivo recebimento.
+   *
+   * 0 = mesmo mês
+   * 1 = mês seguinte
+   */
+  receivableDelayMonths: number;
 
-export interface CashFlowMovement {
-  id: string;
-  description: string;
-  category: string;
-  kind: MovementKind;
-  status: MovementStatus;
-  expectedDate: string;
-  settledDate: string | null;
-  amount: number;
-  contractId: string | null;
+  /**
+   * Amortização reduz caixa,
+   * mas não é despesa da DRE.
+   */
+  annualDebtAmortization: number;
+}
+
+export interface CashFlowMonthProjection {
+  month: number;
+  monthLabel: string;
+
+  hectares: number;
+
+  revenueGenerated: number;
+  customerReceipts: number;
+
+  pilotCommission: number;
+  taxes: number;
+  variableCosts: number;
+
+  fixedCosts: number;
+  groundTeamLogistics: number;
+  interest: number;
+  amortization: number;
+
+  totalOutflows: number;
+
+  netCashFlow: number;
+  cumulativeBalance: number;
+
+  accountsReceivableChange: number;
+  accountsReceivableBalance: number;
 }
 
 export interface CashFlowSummary {
-  openingBalance: number | null;
-  realizedInflows: number | null;
-  realizedOutflows: number | null;
-  closingBalance: number | null;
-  expectedInflows: number | null;
-  expectedOutflows: number | null;
-  projectedBalance: number | null;
+  openingBalance: number;
+
+  revenueGenerated: number;
+  customerReceipts: number;
+
+  totalOutflows: number;
+
+  netCashGenerated: number;
+  closingBalance: number;
+
+  accountsReceivable: number;
 }
 
-export interface CashFlowTimelinePoint {
-  month: string;
-  realizedInflows: number;
-  realizedOutflows: number;
-  expectedInflows: number;
-  expectedOutflows: number;
+export interface CashFlowReconciliation {
+  netProfit: number;
+
+  depreciation: number;
+
+  amortization: number;
+
+  accountsReceivableIncrease: number;
+
+  cashGenerated: number;
 }
 
 export interface CashFlowDto {
   status: 'READY' | 'EMPTY';
+
   source: 'PREVIEW' | 'API';
+
   period: CashFlowPeriod;
+
+  assumptions: CashFlowAssumptions;
+
   summary: CashFlowSummary;
-  timeline: CashFlowTimelinePoint[];
-  movements: CashFlowMovement[];
+
+  months: CashFlowMonthProjection[];
+
+  reconciliation: CashFlowReconciliation;
+
   updatedAt: string | null;
 }

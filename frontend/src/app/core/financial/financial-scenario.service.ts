@@ -41,6 +41,12 @@ export class FinancialScenarioService {
       operatingFixedCostsAnnual:
         416_000,
 
+      baseFixedCostsAnnual:
+        314_000,
+
+      groundTeamLogisticsAnnual:
+        102_000,
+
       depreciationAnnual:
         42_000,
 

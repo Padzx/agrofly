@@ -25,6 +25,16 @@ export interface FinancialScenario {
    */
   operatingFixedCostsAnnual: number;
 
+  /*
+   * Detalhamento utilizado no fluxo de caixa.
+   *
+   * A soma dos dois deve corresponder aos
+   * custos fixos operacionais da DRE.
+   */
+  baseFixedCostsAnnual: number;
+
+  groundTeamLogisticsAnnual: number;
+
   depreciationAnnual: number;
 
   interestAnnual: number;

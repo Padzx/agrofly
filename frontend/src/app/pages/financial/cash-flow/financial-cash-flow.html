@@ -1,283 +1,526 @@
-<section class="page-heading">
-  <div>
-    <p class="eyebrow">GESTÃO FINANCEIRA</p>
-    <h1>Fluxo de Caixa</h1>
-    <p class="muted">
-      Acompanhe entradas, saídas e a posição
-      financeira da AgroFly.
-    </p>
-  </div>
+<section class="cash-flow-page">
 
-  <span class="status-chip" role="status">
-    {{ statusLabel() }}
-  </span>
-</section>
+  <header class="page-heading">
 
-<section class="filters" aria-label="Filtros do fluxo de caixa">
-  <div class="filter-field">
-    <label for="cash-start">Período inicial</label>
-    <input
-      #startInput
-      id="cash-start"
-      type="month"
-      [value]="startMonth()"
-    />
-  </div>
-
-  <div class="filter-field">
-    <label for="cash-end">Período final</label>
-    <input
-      #endInput
-      id="cash-end"
-      type="month"
-      [value]="endMonth()"
-    />
-  </div>
-
-  <ui-button
-    variant="secondary"
-    size="sm"
-    [loading]="state() === 'loading'"
-    (pressed)="applyPeriod(startInput.value, endInput.value)"
-  >
-    Aplicar filtros
-  </ui-button>
-</section>
-
-@if (validationError()) {
-  <p class="filter-error" role="alert">
-    {{ validationError() }}
-  </p>
-}
-
-@if (state() === 'unavailable') {
-  <ui-card>
-    <div class="feedback">
-      <h2>Não foi possível carregar o fluxo de caixa</h2>
-      <p class="muted">
-        Verifique a conexão e tente novamente.
+    <div>
+      <p class="eyebrow">
+        INTELIGÊNCIA FINANCEIRA
       </p>
-      <ui-button variant="secondary" (pressed)="load()">
-        Tentar novamente
-      </ui-button>
-    </div>
-  </ui-card>
-}
 
-<section class="financial-section">
-  <h2 class="section-title">Posição financeira</h2>
+      <h1>
+        Fluxo de Caixa
+      </h1>
 
-  <div class="metrics">
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Saldo inicial</span>
-        <strong class="metric__value">
-          {{ money(summary()?.openingBalance) }}
-        </strong>
-        <span class="metric__note">Início do período</span>
-      </div>
-    </ui-card>
-
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Entradas realizadas</span>
-        <strong class="metric__value">
-          {{ money(summary()?.realizedInflows) }}
-        </strong>
-        <span class="metric__note">Valores recebidos</span>
-      </div>
-    </ui-card>
-
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Saídas realizadas</span>
-        <strong class="metric__value">
-          {{ money(summary()?.realizedOutflows) }}
-        </strong>
-        <span class="metric__note">Valores pagos</span>
-      </div>
-    </ui-card>
-
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Saldo final</span>
-        <strong class="metric__value">
-          {{ money(summary()?.closingBalance) }}
-        </strong>
-        <span class="metric__note">Fim do período</span>
-      </div>
-    </ui-card>
-  </div>
-</section>
-
-<section class="financial-section">
-  <h2 class="section-title">Projeção financeira</h2>
-
-  <div class="forecast-grid">
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Previsto a receber</span>
-        <strong class="metric__value metric__value--small">
-          {{ money(summary()?.expectedInflows) }}
-        </strong>
-      </div>
-    </ui-card>
-
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Previsto a pagar</span>
-        <strong class="metric__value metric__value--small">
-          {{ money(summary()?.expectedOutflows) }}
-        </strong>
-      </div>
-    </ui-card>
-
-    <ui-card>
-      <div class="metric">
-        <span class="metric__label">Saldo projetado</span>
-        <strong class="metric__value metric__value--small">
-          {{ money(summary()?.projectedBalance) }}
-        </strong>
-      </div>
-    </ui-card>
-  </div>
-</section>
-
-<section class="financial-section">
-  <ui-card>
-    <div class="panel-heading">
-      <div>
-        <h2>Evolução do caixa</h2>
-        <p class="muted">
-          Entradas e saídas realizadas e previstas
-        </p>
-      </div>
+      <p class="muted">
+        Compare receita gerada, recebimentos,
+        saídas e geração efetiva de caixa.
+      </p>
     </div>
 
-    @if (timeline().length > 0) {
-      <div class="chart">
-        @for (point of timeline(); track point.month) {
-          <div class="chart__group">
-            <div class="chart__bars">
-              <span
-                class="chart__bar chart__bar--in"
-                [style.height.%]="barHeight(point.realizedInflows)"
-                title="Entradas realizadas"
-              ></span>
-              <span
-                class="chart__bar chart__bar--out"
-                [style.height.%]="barHeight(point.realizedOutflows)"
-                title="Saídas realizadas"
-              ></span>
-              <span
-                class="chart__bar chart__bar--forecast-in"
-                [style.height.%]="barHeight(point.expectedInflows)"
-                title="Entradas previstas"
-              ></span>
-              <span
-                class="chart__bar chart__bar--forecast-out"
-                [style.height.%]="barHeight(point.expectedOutflows)"
-                title="Saídas previstas"
-              ></span>
-            </div>
-            <span class="chart__month">
-              {{ point.month }}
-            </span>
+    <div class="year-filter">
+
+      <label for="cash-year">
+        Ano
+      </label>
+
+      <input
+        #yearInput
+        id="cash-year"
+        type="number"
+        min="2000"
+        max="2100"
+        [value]="year()"
+        (change)="setYear(yearInput.value)"
+      />
+
+    </div>
+
+  </header>
+
+  <section class="metrics">
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Receita gerada
+        </span>
+
+        <strong class="metric__value">
+          {{ money(summary().revenueGenerated) }}
+        </strong>
+
+        <small>
+          Regime de competência
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Recebimentos
+        </span>
+
+        <strong class="metric__value">
+          {{ money(summary().customerReceipts) }}
+        </strong>
+
+        <small>
+          Entrada efetiva de clientes
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Contas a receber
+        </span>
+
+        <strong class="metric__value">
+          {{ money(summary().accountsReceivable) }}
+        </strong>
+
+        <small>
+          Receita ainda não recebida
+        </small>
+
+      </div>
+    </ui-card>
+
+    <ui-card>
+      <div class="metric">
+
+        <span class="metric__label">
+          Caixa gerado
+        </span>
+
+        <strong class="metric__value metric__value--primary">
+          {{ money(summary().netCashGenerated) }}
+        </strong>
+
+        <small>
+          Variação líquida do período
+        </small>
+
+      </div>
+    </ui-card>
+
+  </section>
+
+  <div class="planning-grid">
+
+    <section class="panel">
+
+      <div class="panel-heading">
+
+        <div>
+          <p class="eyebrow">
+            PREMISSAS DE CAIXA
+          </p>
+
+          <h2>
+            Recebimentos e financiamento
+          </h2>
+        </div>
+
+      </div>
+
+      <div class="assumptions-grid">
+
+        <label>
+          <span>
+            Saldo inicial
+          </span>
+
+          <div class="input-group">
+
+            <span>R$</span>
+
+            <input
+              #openingBalance
+              type="number"
+              [value]="assumptions().openingBalance"
+              (input)="
+                updateAssumption(
+                  'openingBalance',
+                  openingBalance.value
+                )
+              "
+            />
+
           </div>
-        }
+        </label>
+
+        <label>
+          <span>
+            Prazo médio de recebimento
+          </span>
+
+          <div class="input-group">
+
+            <input
+              #receivableDelay
+              type="number"
+              min="0"
+              max="12"
+              step="1"
+              [value]="
+                assumptions().receivableDelayMonths
+              "
+              (input)="
+                updateAssumption(
+                  'receivableDelayMonths',
+                  receivableDelay.value
+                )
+              "
+            />
+
+            <span>mês(es)</span>
+
+          </div>
+        </label>
+
+        <label>
+          <span>
+            Amortização anual
+          </span>
+
+          <div class="input-group">
+
+            <span>R$</span>
+
+            <input
+              #amortization
+              type="number"
+              min="0"
+              [value]="
+                assumptions().annualDebtAmortization
+              "
+              (input)="
+                updateAssumption(
+                  'annualDebtAmortization',
+                  amortization.value
+                )
+              "
+            />
+
+          </div>
+        </label>
+
       </div>
 
-      <div class="chart-legend">
-        <span>Entradas realizadas</span>
-        <span>Saídas realizadas</span>
-        <span>Entradas previstas</span>
-        <span>Saídas previstas</span>
-      </div>
-    } @else {
-      <div class="empty-state">
-        <h3>Sem dados para o gráfico</h3>
-        <p>
-          A evolução será apresentada quando
-          existirem movimentações no período.
-        </p>
-      </div>
-    }
-  </ui-card>
-</section>
+    </section>
 
-<section class="financial-section">
-  <ui-card>
+    <section class="panel balance-panel">
+
+      <p class="eyebrow">
+        POSIÇÃO DE CAIXA
+      </p>
+
+      <span>
+        Saldo inicial
+      </span>
+
+      <strong>
+        {{ money(summary().openingBalance) }}
+      </strong>
+
+      <div class="balance-arrow">
+        ↓
+      </div>
+
+      <span>
+        Saldo final projetado
+      </span>
+
+      <strong class="primary-value">
+        {{ money(summary().closingBalance) }}
+      </strong>
+
+    </section>
+
+  </div>
+
+  <section class="panel">
+
     <div class="panel-heading">
+
       <div>
-        <h2>Movimentações financeiras</h2>
+        <p class="eyebrow">
+          EVOLUÇÃO MENSAL
+        </p>
+
+        <h2>
+          Receita, recebimentos e caixa
+        </h2>
+
         <p class="muted">
-          Histórico e programação de entradas e saídas
+          Receita reconhecida por competência
+          pode ser recebida em outro mês.
         </p>
       </div>
 
-      <div class="filter-field">
-        <label for="movement-status">Situação</label>
-        <select
-          #statusSelect
-          id="movement-status"
-          [value]="statusFilter()"
-          (change)="setStatus(statusSelect.value)"
-        >
-          <option value="ALL">Todas</option>
-          <option value="SETTLED">Realizadas</option>
-          <option value="SCHEDULED">Previstas</option>
-        </select>
-      </div>
     </div>
 
-    @if (movements().length > 0) {
-      <div class="table-container">
-        <table class="movement-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Descrição</th>
-              <th>Categoria</th>
-              <th>Tipo</th>
-              <th>Situação</th>
-              <th>Valor</th>
-            </tr>
-          </thead>
+    <div class="table-container">
 
-          <tbody>
-            @for (movement of movements(); track movement.id) {
-              <tr>
-                <td>
-                  {{ displayDate(
-                    movement.settledDate ?? movement.expectedDate
-                  ) }}
-                </td>
-                <td>{{ movement.description }}</td>
-                <td>{{ movement.category }}</td>
-                <td>
-                  {{ movement.kind === 'INFLOW'
-                    ? 'Entrada' : 'Saída' }}
-                </td>
-                <td>
-                  {{ movement.status === 'SETTLED'
-                    ? 'Realizada' : 'Prevista' }}
-                </td>
-                <td>
-                  {{ money(movement.amount) }}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <table class="cash-table">
+
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Hectares</th>
+            <th>Receita gerada</th>
+            <th>Recebimentos</th>
+            <th>Saídas</th>
+            <th>Caixa do mês</th>
+            <th>Saldo acumulado</th>
+            <th>Contas a receber</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (
+            month of months();
+            track month.month
+          ) {
+
+            <tr>
+
+              <th>
+                {{ month.monthLabel }}
+              </th>
+
+              <td>
+                {{ number(month.hectares) }} ha
+              </td>
+
+              <td>
+                {{ money(month.revenueGenerated) }}
+              </td>
+
+              <td>
+                {{ money(month.customerReceipts) }}
+              </td>
+
+              <td>
+                {{ money(month.totalOutflows) }}
+              </td>
+
+              <td
+                [class.positive]="
+                  month.netCashFlow >= 0
+                "
+                [class.negative]="
+                  month.netCashFlow < 0
+                "
+              >
+                {{ money(month.netCashFlow) }}
+              </td>
+
+              <td>
+                {{ money(month.cumulativeBalance) }}
+              </td>
+
+              <td>
+                {{ money(month.accountsReceivableBalance) }}
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+  <div class="analysis-grid">
+
+    <section class="panel">
+
+      <div class="panel-heading">
+
+        <div>
+          <p class="eyebrow">
+            SAÍDAS DO PERÍODO
+          </p>
+
+          <h2>
+            Composição do caixa
+          </h2>
+        </div>
+
       </div>
-    } @else {
-      <div class="empty-state">
-        <h3>Nenhuma movimentação encontrada</h3>
-        <p>
-          Não existem registros para os filtros
-          selecionados.
-        </p>
+
+      <div class="breakdown-list">
+
+        <div>
+          <span>Comissão do piloto</span>
+
+          <strong>
+            {{ money(outflowBreakdown().pilotCommission) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Impostos</span>
+
+          <strong>
+            {{ money(outflowBreakdown().taxes) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Custos variáveis</span>
+
+          <strong>
+            {{ money(outflowBreakdown().variableCosts) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Custos fixos operacionais</span>
+
+          <strong>
+            {{ money(outflowBreakdown().fixedCosts) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Equipe solo + logística</span>
+
+          <strong>
+            {{
+              money(
+                outflowBreakdown()
+                  .groundTeamLogistics
+              )
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Juros</span>
+
+          <strong>
+            {{ money(outflowBreakdown().interest) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Amortização</span>
+
+          <strong>
+            {{ money(outflowBreakdown().amortization) }}
+          </strong>
+        </div>
+
       </div>
-    }
-  </ui-card>
+
+    </section>
+
+    <section class="panel reconciliation-panel">
+
+      <div class="panel-heading">
+
+        <div>
+          <p class="eyebrow">
+            DRE → CAIXA
+          </p>
+
+          <h2>
+            Conciliação do resultado
+          </h2>
+
+          <p class="muted">
+            Entenda por que resultado contábil
+            e geração de caixa são diferentes.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="reconciliation">
+
+        <div>
+          <span>
+            Resultado líquido
+          </span>
+
+          <strong>
+            {{ money(reconciliation().netProfit) }}
+          </strong>
+        </div>
+
+        <div class="addition">
+          <span>
+            + Depreciação
+          </span>
+
+          <strong>
+            {{ money(reconciliation().depreciation) }}
+          </strong>
+        </div>
+
+        <div class="deduction">
+          <span>
+            − Amortização
+          </span>
+
+          <strong>
+            {{ money(reconciliation().amortization) }}
+          </strong>
+        </div>
+
+        <div class="deduction">
+          <span>
+            − Aumento em contas a receber
+          </span>
+
+          <strong>
+            {{
+              money(
+                reconciliation()
+                  .accountsReceivableIncrease
+              )
+            }}
+          </strong>
+        </div>
+
+        <div class="reconciliation-total">
+
+          <span>
+            Caixa gerado
+          </span>
+
+          <strong>
+            {{ money(reconciliation().cashGenerated) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+      <p class="reconciliation-note">
+        A depreciação reduz o resultado,
+        mas não representa saída de caixa.
+        A amortização reduz o caixa,
+        mas não é uma despesa operacional da DRE.
+      </p>
+
+    </section>
+
+  </div>
+
 </section>

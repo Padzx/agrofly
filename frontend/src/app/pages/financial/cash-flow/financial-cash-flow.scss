@@ -2,292 +2,612 @@
 
 :host {
   display: block;
+  min-width: 0;
 }
 
-.page-heading,
-.panel-heading {
+.cash-flow-page {
+  display: grid;
+  gap: 26px;
+  min-width: 0;
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+
+.eyebrow {
+  margin: 0;
+
+  color: var(--primary);
+
+  font-size: 0.68rem;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.page-heading {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 18px;
-}
-
-.page-heading {
-  margin-bottom: 24px;
+  gap: 24px;
 }
 
 .page-heading h1 {
-  margin: 4px 0 6px;
+  margin: 5px 0 8px;
+
+  font-size: clamp(
+    1.7rem,
+    3vw,
+    2.25rem
+  );
+
+  line-height: 1.1;
 }
 
 .page-heading .muted {
+  max-width: 680px;
   margin: 0;
 }
 
-.status-chip {
-  padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
+.year-filter {
+  display: grid;
+  gap: 7px;
+
+  min-width: 130px;
+}
+
+.year-filter label {
   color: var(--muted);
-  background: var(--surface);
-  font-size: .72rem;
+
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
-.filters {
-  display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 14px;
-}
+.year-filter input {
+  min-height: 42px;
 
-.filter-field {
-  display: grid;
-  gap: 6px;
-  min-width: 170px;
-}
-
-.filter-field label {
-  font-size: .75rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.filter-field input,
-.filter-field select {
-  min-height: 44px;
   padding: 0 12px;
+
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+
+  outline: 0;
+
   background: var(--surface);
   color: var(--text);
+
+  font: inherit;
+  font-weight: 700;
 }
 
-.filter-error {
-  margin: 0 0 22px;
-  color: var(--danger);
-  font-size: .78rem;
+.year-filter input:focus {
+  border-color: var(--primary);
 }
 
-.financial-section {
-  margin: 28px 0;
-}
-
-.section-title,
-.panel-heading h2 {
-  margin: 0 0 15px;
-  font-size: 1rem;
-}
-
-.metrics,
-.forecast-grid {
-  display: grid;
-  gap: 15px;
-}
+/* =========================================================
+   CARDS EXECUTIVOS
+   ========================================================= */
 
 .metrics {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
+  display: grid;
 
-.forecast-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 8px;
+
   min-width: 0;
 }
 
 .metric__label {
   color: var(--muted);
-  font-size: .78rem;
-  font-weight: 600;
+
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .metric__value {
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
   color: var(--text);
-  line-height: 1.2;
+
+  font-size: clamp(
+    1.3rem,
+    2vw,
+    1.85rem
+  );
+
+  line-height: 1.15;
+
   overflow-wrap: anywhere;
 }
 
-.metric__value--small {
-  font-size: clamp(1.25rem, 1.7vw, 1.65rem);
+.metric__value--primary {
+  color: var(--primary);
 }
 
-.metric__note {
-  font-size: .72rem;
+.metric small {
   color: var(--muted);
+
+  font-size: 0.7rem;
+}
+
+/* =========================================================
+   PAINÉIS
+   ========================================================= */
+
+.panel {
+  min-width: 0;
+
+  padding: 22px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
 }
 
 .panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
   margin-bottom: 22px;
 }
 
 .panel-heading h2 {
-  margin-bottom: 4px;
+  margin: 5px 0;
+
+  font-size: 1.05rem;
 }
 
-.panel-heading p {
+.panel-heading .muted {
+  max-width: 650px;
   margin: 0;
+
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
-/* Gráfico */
+/* =========================================================
+   PREMISSAS + POSIÇÃO DE CAIXA
+   ========================================================= */
 
-.chart {
-  display: flex;
-  gap: 18px;
-  min-height: 240px;
-  overflow-x: auto;
-  padding: 20px 8px 0;
+.planning-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(260px, 0.6fr);
+
+  gap: 15px;
 }
 
-.chart__group {
-  min-width: 95px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 12px;
+.assumptions-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
 }
 
-.chart__bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 5px;
-  height: 190px;
-  border-bottom: 1px solid var(--border);
+.assumptions-grid label {
+  display: grid;
+  gap: 7px;
 }
 
-.chart__bar {
-  width: 16px;
-  min-height: 2px;
-  border-radius: 4px 4px 0 0;
-}
-
-.chart__bar--in {
-  background: var(--primary);
-}
-
-.chart__bar--out {
-  background: var(--danger);
-}
-
-.chart__bar--forecast-in {
-  background: var(--primary);
-  opacity: .35;
-}
-
-.chart__bar--forecast-out {
-  background: var(--danger);
-  opacity: .35;
-}
-
-.chart__month {
-  text-align: center;
+.assumptions-grid label > span {
   color: var(--muted);
-  font-size: .75rem;
+
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
-.chart-legend {
+.input-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px 20px;
-  margin-top: 24px;
-  color: var(--muted);
-  font-size: .72rem;
-}
-
-.empty-state {
-  min-height: 190px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 25px;
-  border: 1px dashed var(--border);
+
+  min-height: 44px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  text-align: center;
+
+  background:
+    rgba(0, 0, 0, 0.1);
 }
 
-.empty-state h3 {
-  margin: 0;
-  font-size: .9rem;
+.input-group:focus-within {
+  border-color: var(--primary);
 }
 
-.empty-state p {
-  max-width: 390px;
-  margin: 0;
+.input-group > span {
+  padding: 0 10px;
+
   color: var(--muted);
-  font-size: .77rem;
-}
 
-.table-container {
-  overflow-x: auto;
-}
+  font-size: 0.72rem;
 
-.movement-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.movement-table th,
-.movement-table td {
-  padding: 13px 10px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-  font-size: .78rem;
-}
-
-.movement-table th {
-  color: var(--muted);
-  font-size: .71rem;
-}
-
-.movement-table th:last-child,
-.movement-table td:last-child {
-  text-align: right;
   white-space: nowrap;
 }
 
-.feedback {
-  padding: 12px 0;
+.input-group input {
+  width: 100%;
+  min-width: 0;
+
+  padding: 11px;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: var(--text);
+
+  font: inherit;
+  font-weight: 700;
 }
 
-.feedback h2 {
-  margin-top: 0;
+.balance-panel {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
 }
 
-.feedback ui-button {
-  display: inline-block;
-  margin-top: 15px;
+.balance-panel > span {
+  margin-top: 12px;
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
 }
+
+.balance-panel > strong {
+  margin-top: 4px;
+
+  color: var(--text);
+
+  font-size: clamp(
+    1.25rem,
+    2vw,
+    1.7rem
+  );
+}
+
+.balance-arrow {
+  margin: 12px 0 4px;
+
+  color: var(--muted);
+
+  font-size: 1.2rem;
+}
+
+.balance-panel .primary-value {
+  color: var(--primary);
+}
+
+/* =========================================================
+   TABELA MENSAL
+   ========================================================= */
+
+.table-container {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.cash-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.cash-table th,
+.cash-table td {
+  padding: 13px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  font-size: 0.76rem;
+
+  white-space: nowrap;
+}
+
+.cash-table thead th {
+  color: var(--muted);
+
+  font-size: 0.67rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cash-table thead th:first-child,
+.cash-table tbody th {
+  text-align: left;
+}
+
+.cash-table thead th:not(:first-child),
+.cash-table tbody td {
+  text-align: right;
+}
+
+.cash-table tbody th {
+  color: var(--text);
+
+  font-weight: 800;
+}
+
+.cash-table tbody td {
+  color: var(--muted);
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+.cash-table tbody tr {
+  transition:
+    background 120ms ease;
+}
+
+.cash-table tbody tr:hover {
+  background:
+    rgba(255, 255, 255, 0.02);
+}
+
+.cash-table td.positive {
+  color: var(--primary);
+
+  font-weight: 700;
+}
+
+.cash-table td.negative {
+  color: var(--danger);
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   ANÁLISES INFERIORES
+   ========================================================= */
+
+.analysis-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+/* =========================================================
+   COMPOSIÇÃO DAS SAÍDAS
+   ========================================================= */
+
+.breakdown-list {
+  display: grid;
+}
+
+.breakdown-list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 13px 0;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.breakdown-list > div:last-child {
+  border-bottom: 0;
+}
+
+.breakdown-list span {
+  color: var(--muted);
+
+  font-size: 0.76rem;
+}
+
+.breakdown-list strong {
+  color: var(--text);
+
+  font-size: 0.82rem;
+
+  font-variant-numeric:
+    tabular-nums;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CONCILIAÇÃO DRE → CAIXA
+   ========================================================= */
+
+.reconciliation-panel {
+  border-color:
+    rgba(94, 224, 182, 0.22);
+}
+
+.reconciliation {
+  display: grid;
+}
+
+.reconciliation > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 13px 0;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.reconciliation span {
+  color: var(--muted);
+
+  font-size: 0.76rem;
+}
+
+.reconciliation strong {
+  color: var(--text);
+
+  font-size: 0.82rem;
+
+  font-variant-numeric:
+    tabular-nums;
+
+  white-space: nowrap;
+}
+
+.reconciliation .addition span {
+  color: var(--primary);
+}
+
+.reconciliation .deduction span {
+  color: var(--muted);
+}
+
+.reconciliation-total {
+  margin-top: 8px;
+  padding: 17px !important;
+
+  border: 1px solid
+    rgba(94, 224, 182, 0.22) !important;
+
+  border-radius: var(--radius-md);
+
+  background:
+    rgba(94, 224, 182, 0.06);
+}
+
+.reconciliation-total span {
+  color: var(--text);
+
+  font-weight: 800;
+}
+
+.reconciliation-total strong {
+  color: var(--primary);
+
+  font-size: clamp(
+    1.1rem,
+    2vw,
+    1.45rem
+  );
+}
+
+.reconciliation-note {
+  margin:
+    18px 0 0;
+
+  padding-top: 16px;
+
+  border-top:
+    1px dashed var(--border);
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @include bp.tablet {
-  .metrics,
-  .forecast-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  .metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .planning-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .assumptions-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .balance-panel {
+    min-height: 190px;
   }
 }
 
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @include bp.mobile {
-  .metrics,
-  .forecast-grid {
+
+  .cash-flow-page {
+    gap: 20px;
+  }
+
+  .page-heading {
+    flex-direction: column;
+  }
+
+  .year-filter {
+    width: 100%;
+  }
+
+  .year-filter input {
+    width: 100%;
+  }
+
+  .metrics {
     grid-template-columns: 1fr;
   }
 
-  .filters {
-    display: grid;
+  .assumptions-grid {
     grid-template-columns: 1fr;
   }
 
-  .filter-field {
-    min-width: 0;
+  .panel {
+    padding: 17px;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .cash-table th,
+  .cash-table td {
+    padding: 12px 10px;
+
+    font-size: 0.72rem;
   }
 }
