@@ -134,23 +134,19 @@
             Custos fixos anuais
           </span>
 
-          <div class="input-wrapper">
+          <div class="input-wrapper derived-field">
             <span>R$</span>
 
             <input
-              #fixedCosts
-              type="number"
-              min="0"
-              step="1000"
-              [value]="scenario().fixedCostsAnnual"
-              (input)="
-                updateField(
-                  'fixedCostsAnnual',
-                  fixedCosts.value
-                )
-              "
+              type="text"
+              [value]="number(fixedCostsAnnual(), 2)"
+              readonly
             />
           </div>
+
+          <small class="field-note">
+            Custos operacionais + depreciação + juros
+          </small>
         </label>
 
         <label>
@@ -182,23 +178,21 @@
             Custo variável por ha
           </span>
 
-          <div class="input-wrapper">
+          <div class="input-wrapper derived-field">
             <span>R$</span>
 
             <input
-              #variableCost
-              type="number"
-              min="0"
-              step="0.01"
-              [value]="scenario().variableCostPerHa"
-              (input)="
-                updateField(
-                  'variableCostPerHa',
-                  variableCost.value
-                )
-              "
+              type="text"
+              [value]="number(variableCostPerHa(), 2)"
+              readonly
             />
+
+            <span>/ha</span>
           </div>
+
+          <small class="field-note">
+            Combustível + manutenção + outros variáveis
+          </small>
         </label>
 
         <label>

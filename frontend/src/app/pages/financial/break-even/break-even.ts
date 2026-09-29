@@ -2,15 +2,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
-  signal
+  inject
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
 import {
-  BreakEvenScenario
-} from '../../../core/financial/financial-break-even.model';
+  FinancialScenario
+} from '../../../core/financial/financial-scenario.model';
+
+import {
+  FinancialScenarioService
+} from '../../../core/financial/financial-scenario.service';
 
 import {
   FinancialBreakEvenService
@@ -26,28 +29,35 @@ import {
 })
 export class FinancialBreakEven {
 
-  private readonly service =
+  private readonly breakEvenService =
     inject(FinancialBreakEvenService);
 
+  private readonly financialScenario =
+    inject(FinancialScenarioService);
+
   readonly scenario =
-    signal<BreakEvenScenario>({
-      ...this.service.initialScenario
-    });
+    this.financialScenario.scenario;
+
+  readonly variableCostPerHa =
+    this.financialScenario.variableCostPerHa;
+
+  readonly fixedCostsAnnual =
+    this.financialScenario.breakEvenFixedCostsAnnual;
 
   readonly result = computed(() =>
-    this.service.calculate(
+    this.breakEvenService.calculate(
       this.scenario()
     )
   );
 
   readonly profitTargets = computed(() =>
     [
-      100000,
-      200000,
-      300000,
-      500000
+      100_000,
+      200_000,
+      300_000,
+      500_000
     ].map(target =>
-      this.service.calculateProfitTarget(
+      this.breakEvenService.calculateProfitTarget(
         this.scenario(),
         target
       )
@@ -55,12 +65,9 @@ export class FinancialBreakEven {
   );
 
   readonly projectedHours = computed(() => {
-
     const scenario = this.scenario();
 
-    if (
-      scenario.productivityHaPerHour <= 0
-    ) {
+    if (scenario.productivityHaPerHour <= 0) {
       return 0;
     }
 
@@ -71,15 +78,12 @@ export class FinancialBreakEven {
   });
 
   updateField(
-    field: keyof BreakEvenScenario,
+    field: keyof FinancialScenario,
     value: string
   ): void {
 
     const numericValue =
-      Number(
-        value
-          .replace(',', '.')
-      );
+      Number(value.replace(',', '.'));
 
     if (
       Number.isNaN(numericValue)
@@ -88,25 +92,17 @@ export class FinancialBreakEven {
       return;
     }
 
-    this.scenario.update(
-      current => ({
-        ...current,
-        [field]: numericValue
-      })
+    this.financialScenario.updateField(
+      field,
+      numericValue
     );
   }
 
   resetScenario(): void {
-
-    this.scenario.set({
-      ...this.service.initialScenario
-    });
+    this.financialScenario.reset();
   }
 
-  currency(
-    value: number
-  ): string {
-
+  currency(value: number): string {
     return new Intl.NumberFormat(
       'pt-BR',
       {
@@ -130,10 +126,7 @@ export class FinancialBreakEven {
     ).format(value);
   }
 
-  percent(
-    value: number
-  ): string {
-
+  percent(value: number): string {
     return new Intl.NumberFormat(
       'pt-BR',
       {
